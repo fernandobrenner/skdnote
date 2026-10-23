@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}500 — Erro Interno do Servidor | skdnote{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/auth.css">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="max-width: 500px;">
+    <div class="auth-card" style="text-align: center; padding: 40px 32px;">
+        <div class="state-icon-circle" style="width: 72px; height: 72px; font-size: 32px; margin-bottom: 20px; background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+
+        <h1 style="font-size: 26px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; margin-bottom: 8px;">
+            Erro 500
+        </h1>
+        <h2 style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">
+            Algo deu errado do nosso lado
+        </h2>
+        <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 16px;">
+            Nossa equipe técnica foi notificada do ocorrido. Suas anotações salvas continuam 100% seguras na nuvem.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
+            <button onclick="window.location.reload();" class="btn btn-primary btn-block">
+                Recarregar Página
+            </button>
+            <a href="/" class="btn btn-secondary btn-block">
+                Ir para o Início
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

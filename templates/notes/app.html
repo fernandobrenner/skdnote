@@ -1,0 +1,1794 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if selected_note %}{{ selected_note.title }} — skdnote{% else %}Minhas Notas — skdnote{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/app.css?v=3.1">
+<style>
+    /* ==========================================================================
+       BARRA INFERIOR E POPOVERS ESTILO UPNOTE (HARMONIZADO COM DESIGN SYSTEM)
+       ========================================================================== */
+    .editor-col {
+        position: relative !important;
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        background-color: var(--editor-bg) !important;
+    }
+
+    .editor-scroll {
+        flex: 1 1 auto !important;
+        overflow-y: auto !important;
+        padding: 32px 48px !important;
+        max-width: 820px !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+        box-sizing: border-box !important;
+    }
+
+    .upnote-bottom-bar {
+        flex: 0 0 44px !important;
+        height: 44px !important;
+        min-height: 44px !important;
+        max-height: 44px !important;
+        background: var(--toolbar-bg) !important;
+        backdrop-filter: blur(14px) !important;
+        -webkit-backdrop-filter: blur(14px) !important;
+        border-top: 1px solid var(--border-subtle) !important;
+        display: flex !important;
+        align-items: center !important;
+        padding: 0 16px !important;
+        gap: 2px !important;
+        position: relative !important;
+        z-index: 100 !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        scrollbar-width: none !important;
+        box-sizing: border-box !important;
+        user-select: none !important;
+    }
+    .upnote-bottom-bar::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .upnote-btn {
+        background: transparent !important;
+        border: none !important;
+        height: 32px !important;
+        min-width: 32px !important;
+        padding: 0 6px !important;
+        border-radius: 7px !important;
+        color: var(--text-secondary) !important;
+        cursor: pointer !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        transition: all 0.15s ease !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    .upnote-btn:hover {
+        background: var(--card-hover-bg) !important;
+        color: var(--text-main) !important;
+        transform: translateY(-1px);
+    }
+
+    .upnote-btn.active {
+        background: var(--accent-subtle) !important;
+        color: var(--accent) !important;
+        font-weight: 700 !important;
+    }
+
+    [data-theme="dark"] .upnote-btn.active {
+        background: rgba(99, 102, 241, 0.22) !important;
+        color: #818cf8 !important;
+    }
+
+    .upnote-divider-v {
+        width: 1px !important;
+        height: 18px !important;
+        background: var(--border-subtle) !important;
+        margin: 0 4px !important;
+        flex-shrink: 0 !important;
+    }
+
+    /* Popover Flutuante Estilo UpNote */
+    .upnote-popover {
+        position: absolute !important;
+        bottom: 50px !important;
+        background: var(--modal-bg) !important;
+        border: 1px solid var(--border-subtle) !important;
+        border-radius: 12px !important;
+        box-shadow: 0 14px 35px rgba(0, 0, 0, 0.14), 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+        z-index: 1000 !important;
+        padding: 6px 0 !important;
+        flex-direction: column !important;
+        min-width: 260px !important;
+        box-sizing: border-box !important;
+    }
+
+    [data-theme="dark"] .upnote-popover {
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+    }
+
+    .upnote-menu-item {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        padding: 8px 14px !important;
+        font-size: 13.5px !important;
+        color: var(--text-main) !important;
+        background: transparent !important;
+        border: none !important;
+        width: 100% !important;
+        cursor: pointer !important;
+        text-align: left !important;
+        transition: background 0.12s ease !important;
+        box-sizing: border-box !important;
+        outline: none !important;
+        font-family: inherit !important;
+    }
+
+    .upnote-menu-item:hover {
+        background: var(--bg-hover, rgba(0, 0, 0, 0.04)) !important;
+    }
+
+    .upnote-menu-item-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+    }
+
+    .upnote-menu-item-icon {
+        width: 18px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: var(--text-secondary, #64748b) !important;
+        font-size: 14px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .upnote-menu-item-shortcut {
+        font-size: 11.5px !important;
+        color: var(--text-faint, #94a3b8) !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace !important;
+        margin-left: 16px !important;
+    }
+
+    /* Paleta de Cores e Destaques */
+    .color-grid {
+        display: grid !important;
+        grid-template-columns: repeat(5, 1fr) !important;
+        gap: 8px !important;
+        padding: 10px 14px !important;
+    }
+
+    .color-swatch {
+        width: 24px !important;
+        height: 24px !important;
+        border-radius: 50% !important;
+        border: 2px solid transparent !important;
+        cursor: pointer !important;
+        transition: transform 0.15s ease, border-color 0.15s ease !important;
+    }
+
+    .color-swatch:hover {
+        transform: scale(1.15) !important;
+        border-color: var(--primary, #4f46e5) !important;
+    }
+
+    /* Drag and Drop de Nota para a Lixeira */
+    .note-card[draggable="true"] {
+        cursor: grab;
+        user-select: none;
+    }
+
+    .note-card.is-dragging {
+        opacity: 0.4 !important;
+        cursor: grabbing !important;
+        transform: scale(0.96) !important;
+        border: 1px dashed #ef4444 !important;
+    }
+
+    .trash-ready-drop {
+        transition: all 0.2s ease !important;
+        border: 1px dashed rgba(239, 68, 68, 0.5) !important;
+        background: rgba(239, 68, 68, 0.05) !important;
+    }
+
+    .trash-drag-over {
+        background-color: rgba(239, 68, 68, 0.2) !important;
+        color: #ef4444 !important;
+        border: 1px solid #ef4444 !important;
+        transform: scale(1.06) !important;
+        box-shadow: 0 4px 14px rgba(239, 68, 68, 0.25) !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="upnote-layout">
+
+    <!-- ======================================================================
+         COLUNA 1: BARRA LATERAL (CADERNOS & NAVEGAÇÃO)
+         ====================================================================== -->
+    <aside class="sidebar-col">
+        <div class="sidebar-header">
+            <a href="{% url 'notes:app' %}" class="brand-wrapper">
+                <div class="brand-icon">S</div>
+                <span class="brand-text">skdnote</span>
+            </a>
+            <button onclick="closeMobileSidebar()" class="mobile-back-btn modal-close-btn" title="Fechar menu" aria-label="Fechar">&times;</button>
+        </div>
+
+        <div class="sidebar-scroll">
+            <!-- Navegação Padrão -->
+            <div class="nav-section">
+                <a href="{% url 'notes:app' %}"
+                   class="nav-item {% if current_filter == 'all' and not active_notebook and not active_tag %}active{% endif %}"
+                   id="nav-all-notes-target"
+                   title="Todas as Notas — Solte uma nota aqui para restaurar">
+                    <div class="nav-item-left">
+                        <span>📝</span>
+                        <span>Todas as Notas</span>
+                    </div>
+                </a>
+                <a href="{% url 'notes:app' %}?filter=pinned" class="nav-item {% if current_filter == 'pinned' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>📌</span>
+                        <span>Fixadas</span>
+                    </div>
+                </a>
+                <a href="{% url 'notes:app' %}?filter=favorites" class="nav-item {% if current_filter == 'favorites' %}active{% endif %}">
+                    <div class="nav-item-left">
+                        <span>⭐</span>
+                        <span>Favoritas</span>
+                    </div>
+                </a>
+                <a href="{% url 'notes:app' %}?filter=trash"
+                   class="nav-item {% if current_filter == 'trash' %}active{% endif %}"
+                   id="nav-trash-target"
+                   title="Lixeira — Arraste uma nota aqui para excluir">
+                    <div class="nav-item-left">
+                        <span id="trash-icon-emoji">🗑️</span>
+                        <span>Lixeira</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Seção de Cadernos -->
+            <div class="nav-section">
+                <div class="nav-section-title">
+                    <span>Cadernos</span>
+                    <button onclick="openModal('modal-new-notebook')" class="btn-add-section" title="Novo Caderno">+</button>
+                </div>
+                {% for nb in notebooks %}
+                    <a href="{% url 'notes:app' %}?notebook={{ nb.id }}" class="nav-item {% if active_notebook and active_notebook.id == nb.id %}active{% endif %}">
+                        <div class="nav-item-left">
+                            <span>{{ nb.icon|default:"📁" }}</span>
+                            <span>{{ nb.title }}</span>
+                        </div>
+                        <span class="nav-count">{{ nb.active_notes_count }}</span>
+                    </a>
+                    <!-- Subcadernos aninhados -->
+                    {% for sub in nb.subnotebooks.all %}
+                        <a href="{% url 'notes:app' %}?notebook={{ sub.id }}" class="nav-item subnotebook-item {% if active_notebook and active_notebook.id == sub.id %}active{% endif %}">
+                            <div class="nav-item-left">
+                                <span>{{ sub.icon|default:"📂" }}</span>
+                                <span>{{ sub.title }}</span>
+                            </div>
+                            <span class="nav-count">{{ sub.active_notes_count }}</span>
+                        </a>
+                    {% endfor %}
+                {% empty %}
+                    <div style="font-size: 12px; color: var(--text-faint); padding: 4px 10px;">Nenhum caderno criado</div>
+                {% endfor %}
+            </div>
+
+            <!-- Seção de Tags -->
+            <div class="nav-section">
+                <div class="nav-section-title">
+                    <span>Etiquetas / Tags</span>
+                    <button onclick="openModal('modal-new-tag')" class="btn-add-section" title="Nova Tag">+</button>
+                </div>
+                {% for tag in tags %}
+                    <div class="nav-tag-item-wrapper" id="nav-tag-wrapper-{{ tag.id }}" style="position: relative; display: flex; align-items: center;">
+                        <a href="{% url 'notes:app' %}?tag={{ tag.id }}" class="nav-item {% if active_tag and active_tag.id == tag.id %}active{% endif %}" style="flex: 1;">
+                            <div class="nav-item-left">
+                                <span style="color: {{ tag.color }}; font-weight: 700;">#</span>
+                                <span>{{ tag.name }}</span>
+                            </div>
+                            <span class="nav-count" id="sidebar-tag-count-{{ tag.id }}">{{ tag.active_notes_count }}</span>
+                        </a>
+                        <button type="button"
+                                class="btn-delete-tag-icon"
+                                onclick="event.preventDefault(); event.stopPropagation(); deleteTagItem('{{ tag.id }}', '{{ tag.name|escapejs }}');"
+                                title="Excluir etiqueta #{{ tag.name }}"
+                                style="position: absolute; right: 28px; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 15px; opacity: 0; transition: opacity 0.15s; padding: 2px 5px; line-height: 1;">
+                            &times;
+                        </button>
+                    </div>
+                {% empty %}
+                    <div style="font-size: 12px; color: var(--text-faint); padding: 4px 10px;">Nenhuma tag criada</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Limitador de 50 Notas (Regra do Plano Gratuito) -->
+        {% if not quota.is_pro %}
+        <div class="quota-card">
+            <div class="quota-header">
+                <span style="color: #94a3b8;">Uso de Notas</span>
+                <span style="color: #f8fafc;">{{ quota.current_notes }} / {{ quota.max_notes }}</span>
+            </div>
+            <div class="quota-bar-bg">
+                <div class="quota-bar-fill" style="width: {{ quota.percentage }}%;"></div>
+            </div>
+            <button onclick="openModal('paywall-modal')" class="btn-upgrade-mini">
+                Desbloquear Ilimitado &rarr;
+            </button>
+        </div>
+        {% endif %}
+
+        <!-- Rodapé do Usuário -->
+        <div class="sidebar-footer">
+            <div class="user-snippet">
+                <div class="user-avatar">{{ user.email|slice:":1"|upper }}</div>
+                <div class="user-email-text" title="{{ user.email }}">{{ user.email }}</div>
+            </div>
+            <div style="display: flex; gap: 4px; align-items: center;">
+                <button type="button" onclick="toggleTheme()" class="theme-toggle-btn" style="padding: 2px 7px; font-size: 11px; height: 24px;" title="Alternar Modo Claro / Escuro">
+                    <span class="theme-toggle-icon">🌙</span>
+                </button>
+                <a href="{% url 'exports:backup_zip' %}" class="btn-sidebar-icon" title="Fazer Backup Completo (ZIP)">📦</a>
+                <a href="/dados-pessoais/" class="btn-sidebar-icon" title="Privacidade e LGPD">🛡️</a>
+                {% if user.is_admin %}
+                    <a href="{% url 'administration:dashboard' %}" class="btn-sidebar-icon" title="Painel Admin">⚙️</a>
+                {% endif %}
+                <form action="{% url 'logout' %}" method="post" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-sidebar-icon" title="Encerrar Sessão">🚪</button>
+                </form>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ======================================================================
+         COLUNA 2: LISTA DE NOTAS
+         ====================================================================== -->
+    <section class="notes-col">
+        <div class="notes-header">
+            <div class="notes-header-top">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <button onclick="openMobileSidebar()" class="btn-icon-action" style="display: none;" id="mobile-menu-btn">☰</button>
+                    <span class="notes-header-title">
+                        {% if current_filter == 'trash' %}Lixeira
+                        {% elif current_filter == 'pinned' %}Fixadas
+                        {% elif current_filter == 'favorites' %}Favoritas
+                        {% elif active_notebook %}{{ active_notebook.title }}
+                        {% elif active_tag %}#{{ active_tag.name }}
+                        {% else %}Todas as Notas{% endif %}
+                    </span>
+                    <span style="font-size:12px; color:var(--text-faint);">({{ notes|length }})</span>
+                </div>
+
+                {% if current_filter != 'trash' %}
+                    <form method="post" action="{% url 'notes:note_create' %}">
+                        {% csrf_token %}
+                        {% if active_notebook %}
+                            <input type="hidden" name="notebook_id" value="{{ active_notebook.id }}">
+                        {% endif %}
+                        {% if active_tag %}
+                            <input type="hidden" name="tag_id" value="{{ active_tag.id }}">
+                        {% endif %}
+                        <button type="submit" class="btn-new-note" id="btn-create-note">
+                            <span>+</span>
+                            <span>Nova</span>
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+
+            <!-- Busca Instantânea -->
+            <form method="get" action="{% url 'notes:app' %}" class="search-box">
+                {% if current_filter != 'all' %}<input type="hidden" name="filter" value="{{ current_filter }}">{% endif %}
+                {% if active_notebook %}<input type="hidden" name="notebook" value="{{ active_notebook.id }}">{% endif %}
+                <span class="search-icon">🔍</span>
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Buscar por título ou texto..." class="search-input" autocomplete="off">
+            </form>
+        </div>
+
+        <div class="notes-scroll">
+            {% for note in notes %}
+                <a href="{% url 'notes:app' %}?note_id={{ note.id }}{% if current_filter != 'all' %}&filter={{ current_filter }}{% endif %}{% if active_notebook %}&notebook={{ active_notebook.id }}{% endif %}"
+                   class="note-card {% if selected_note and selected_note.id == note.id %}active{% endif %}"
+                   data-note-id="{{ note.id }}"
+                   draggable="true"
+                   ondragstart="handleNoteDragStart(event, '{{ note.id }}')"
+                   ondragend="handleNoteDragEnd(event)"
+                   title="Clique para abrir ou arraste para a Lixeira para excluir">
+                    <div class="note-card-title">
+                        <span class="card-title-text">{{ note.title|default:"Sem título" }}</span>
+                        {% if note.is_pinned %}
+                            <span class="pin-icon-badge" title="Fixada">📌</span>
+                        {% endif %}
+                    </div>
+                    <div class="note-card-preview">{{ note.preview_text }}</div>
+                    {% if note.tags.all %}
+                        <div class="note-card-tags" id="card-tags-{{ note.id }}" style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px;">
+                            {% for tag in note.tags.all %}
+                                <span class="note-card-tag-pill" style="font-size: 10.5px; color: {{ tag.color }}; background: rgba(129, 140, 248, 0.1); border-radius: 4px; padding: 1px 6px; font-weight: 500;">
+                                    #{{ tag.name }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="note-card-tags" id="card-tags-{{ note.id }}" style="display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 6px;"></div>
+                    {% endif %}
+                    <div class="note-card-footer">
+                        <span>{{ note.updated_at|date:"d M, H:i" }}</span>
+                        {% if note.notebook %}
+                            <span style="background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 4px;">{{ note.notebook.title }}</span>
+                        {% endif %}
+                        {% if current_filter == 'trash' or note.is_deleted %}
+                            <button type="button"
+                                    class="btn-restore-card"
+                                    onclick="event.preventDefault(); event.stopPropagation(); restoreNoteFromTrash('{{ note.id }}');"
+                                    title="Restaurar esta anotação da lixeira"
+                                    style="margin-left: auto; background: rgba(79, 70, 229, 0.12); color: #4f46e5; border: 1px solid rgba(79, 70, 229, 0.25); border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;">
+                                ♻️ Restaurar
+                            </button>
+                        {% endif %}
+                    </div>
+                </a>
+            {% empty %}
+                <div style="text-align: center; padding: 40px 16px; color: var(--text-faint);">
+                    <div style="font-size: 28px; margin-bottom: 8px;">📋</div>
+                    <p style="font-size: 13.5px;">Nenhuma anotação encontrada.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ======================================================================
+         COLUNA 3: PAINEL DO EDITOR (DISTRACTION-FREE)
+         ====================================================================== -->
+    <main class="editor-col">
+        {% if selected_note %}
+            <input type="hidden" id="current-note-id" value="{{ selected_note.id }}">
+            
+            <div class="editor-header">
+                <div class="editor-header-left">
+                    <button onclick="closeMobileEditor()" class="mobile-back-btn">&larr; Voltar</button>
+                    <div id="sync-status-badge" class="sync-status">
+                        <span class="sync-dot"></span>
+                        <span>Sincronizado na nuvem</span>
+                    </div>
+                </div>
+
+                <div class="editor-header-actions">
+                    {% if selected_note.is_deleted %}
+                        <button type="button"
+                                onclick="restoreNoteFromTrash('{{ selected_note.id }}')"
+                                class="btn btn-secondary btn-sm"
+                                id="btn-restore-header">
+                            <span>♻️</span> Restaurar
+                        </button>
+                        <button type="button"
+                                onclick="openConfirmDeleteModal('{{ selected_note.id }}', 'permanent', '{{ selected_note.title|escapejs }}')"
+                                class="btn btn-danger btn-sm"
+                                id="btn-permanent-delete-header">
+                            <span>🗑️</span> Excluir
+                        </button>
+                    {% else %}
+                        <!-- Compartilhar via Link Público -->
+                        <button type="button"
+                                onclick="openShareModal('{{ selected_note.id }}', {{ selected_note.is_shared|yesno:'true,false' }}, '{% if selected_note.is_shared %}{{ selected_note.share_token }}{% endif %}')"
+                                class="btn-icon-action {% if selected_note.is_shared %}active{% endif %}"
+                                id="btn-share-header"
+                                title="Compartilhar por Link Seguro"
+                                style="font-size:13px;">🔗</button>
+
+                        <!-- Exportações de Arquivo -->
+                        <div class="header-export-group" style="display:inline-flex; align-items:center; gap:3px; margin: 0 2px;">
+                            <a href="{% url 'exports:note_pdf' note_id=selected_note.id %}" class="btn-export-badge" title="Exportar como PDF (.pdf)">PDF</a>
+                            <a href="{% url 'exports:note_docx' note_id=selected_note.id %}" class="btn-export-badge" title="Exportar como Word (.docx)">DOCX</a>
+                            <a href="{% url 'exports:note_markdown' note_id=selected_note.id %}" class="btn-export-badge" title="Exportar para Markdown (.md)">MD</a>
+                        </div>
+                        <a href="{% url 'exports:note_html' note_id=selected_note.id %}" target="_blank" class="btn-icon-action" title="Imprimir / Visualização Limpa" style="text-decoration:none;">🖨️</a>
+
+                        <button type="button" onclick="toggleNotePin('{{ selected_note.id }}')" class="btn-icon-action {% if selected_note.is_pinned %}active{% endif %}" title="Fixar / Desafixar">📌</button>
+                        <button type="button" onclick="toggleNoteFavorite('{{ selected_note.id }}')" class="btn-icon-action {% if selected_note.is_favorite %}active{% endif %}" title="Favoritar">⭐</button>
+
+                        <!-- Botão Lixeira com abertura de Modal Estilizado -->
+                        <button type="button"
+                                id="btn-trash-header"
+                                class="btn-icon-action"
+                                title="Mover para Lixeira"
+                                onclick="openConfirmDeleteModal('{{ selected_note.id }}', 'trash', '{{ selected_note.title|escapejs }}');"
+                                style="background:transparent; border:none; cursor:pointer;">🗑️</button>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Área de Digitação Central -->
+            <div class="editor-scroll">
+                {% if selected_note.is_deleted %}
+                    <div class="trash-notice-banner" style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.22); border-radius: 10px; padding: 14px 18px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap;">
+                        <div style="display:flex; align-items:center; gap:10px; font-size:13.5px; color:var(--text-main);">
+                            <span style="font-size:22px;">🗑️</span>
+                            <div>
+                                <div style="font-weight:700; color:#ef4444; margin-bottom:2px;">Anotação na Lixeira</div>
+                                <div style="color:var(--text-muted); font-size:12.5px;">Esta anotação foi movida para a lixeira. Restaure-a para voltar a editar o conteúdo normalmente.</div>
+                            </div>
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button type="button" onclick="restoreNoteFromTrash('{{ selected_note.id }}')" class="btn btn-primary btn-sm">
+                                <span>♻️</span> Restaurar Anotação
+                            </button>
+                            <button type="button" onclick="openConfirmDeleteModal('{{ selected_note.id }}', 'permanent', '{{ selected_note.title|escapejs }}')" class="btn btn-danger-soft btn-sm">
+                                <span>Excluir Definitivamente</span>
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+                <input type="text"
+                       id="editor-title"
+                       value="{{ selected_note.title }}"
+                       placeholder="Título da anotação..."
+                       class="editor-title-input"
+                       {% if selected_note.is_deleted %}readonly{% endif %}>
+
+                <!-- Barra de Etiquetas da Anotação (UpNote Style) -->
+                <div class="note-editor-tags-bar" id="note-editor-tags-bar" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 4px 0 16px 0; padding: 2px 0;">
+                    <span style="font-size: 13px; color: var(--text-muted);" title="Etiquetas desta nota">🏷️</span>
+                    <div id="editor-tags-list" style="display: inline-flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+                        {% for tag in selected_note.tags.all %}
+                            <span class="editor-tag-chip" data-tag-id="{{ tag.id }}" style="display: inline-flex; align-items: center; gap: 5px; background: rgba(129, 140, 248, 0.12); color: {{ tag.color }}; border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 2px 8px; font-size: 11.5px; font-weight: 600;">
+                                <span>#{{ tag.name }}</span>
+                                {% if not selected_note.is_deleted %}
+                                    <button type="button" onclick="toggleTagOnCurrentNote('{{ selected_note.id }}', '{{ tag.id }}')" style="background:none; border:none; color:inherit; font-size:13px; line-height:1; cursor:pointer; padding:0; opacity:0.75;" title="Remover etiqueta">&times;</button>
+                                {% endif %}
+                            </span>
+                        {% empty %}
+                            <span id="no-tags-placeholder" style="font-size: 12px; color: var(--text-faint); font-style: italic;">Sem etiquetas (digite #etiqueta no texto ou adicione ao lado)</span>
+                        {% endfor %}
+                    </div>
+
+                    {% if not selected_note.is_deleted %}
+                        <div style="position: relative; display: inline-block;">
+                            <button type="button"
+                                    id="btn-add-tag-trigger"
+                                    onclick="toggleTagDropdown(event)"
+                                    class="btn-add-tag-pill">
+                                <span>+</span> Etiqueta
+                            </button>
+
+                            <!-- Dropdown Flutuante de Tags -->
+                            <div id="dropdown-tag-selector" class="upnote-popover" style="display: none; position: absolute; top: 28px; left: 0; width: 220px; z-index: 1000; padding: 8px; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+                                <input type="text"
+                                       id="quick-tag-input"
+                                       placeholder="Nova tag ou buscar..."
+                                       style="width: 100%; height: 28px; font-size: 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--editor-bg); color: var(--text-main); padding: 0 8px; margin-bottom: 6px;"
+                                       onkeydown="handleQuickTagInputKeydown(event, '{{ selected_note.id }}')">
+                                <div id="quick-tags-container" style="max-height: 140px; overflow-y: auto;">
+                                    {% for tag in tags %}
+                                        <div class="quick-tag-item"
+                                             onclick="toggleTagOnCurrentNote('{{ selected_note.id }}', '{{ tag.id }}')"
+                                             style="display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; border-radius: 5px; font-size: 12px; cursor: pointer; color: var(--text-main);">
+                                            <span style="color: {{ tag.color }}; font-weight: 600;">#{{ tag.name }}</span>
+                                            <span class="tag-status-icon" id="tag-check-{{ tag.id }}" style="font-size: 11px; color: #10b981;">
+                                                {% if tag in selected_note.tags.all %}✓{% endif %}
+                                            </span>
+                                        </div>
+                                    {% empty %}
+                                        <div style="font-size: 11px; color: var(--text-faint); padding: 4px 6px;">Digite e pressione Enter</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div id="editor-content"
+                     class="editor-content-area"
+                     {% if not selected_note.is_deleted %}contenteditable="true"{% endif %}
+                     spellcheck="true">{{ selected_note.content_html|safe }}</div>
+            </div>
+
+            <!-- ======================================================================
+                 BARRA INFERIOR DE FORMATAÇÃO ESTILO UPNOTE (DOCK INFERIOR & FLUTUANTE)
+                 ====================================================================== -->
+            {% if not selected_note.is_deleted %}
+            <div class="upnote-bottom-bar" id="upnote-toolbar">
+                <!-- 1. Botão Inserir (+) -->
+                <button type="button" class="upnote-btn" id="btn-insert" title="Inserir..." onclick="toggleUpnoteMenu('popover-insert', event)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                </button>
+
+                <!-- 2. Cabeçalho (H) com dropdown de níveis e badge azul ativo -->
+                <button type="button" class="upnote-btn" id="btn-heading" title="Títulos (H1-H4)" onclick="toggleUpnoteMenu('popover-heading', event)">
+                    <span style="font-weight:700; font-size:15px; font-family:sans-serif;">H</span>
+                </button>
+
+                <!-- 3. Negrito (B) -->
+                <button type="button" class="upnote-btn" id="btn-bold" title="Negrito (Ctrl+B)" onclick="editorFormat('bold')">
+                    <span style="font-weight:800; font-size:15px; font-family:serif;">B</span>
+                </button>
+
+                <!-- 4. Itálico (I) -->
+                <button type="button" class="upnote-btn" id="btn-italic" title="Itálico (Ctrl+I)" onclick="editorFormat('italic')">
+                    <span style="font-style:italic; font-weight:700; font-size:15px; font-family:serif;">I</span>
+                </button>
+
+                <!-- 5. Sublinhado (U) -->
+                <button type="button" class="upnote-btn" id="btn-underline" title="Sublinhado (Ctrl+U)" onclick="editorFormat('underline')">
+                    <span style="text-decoration:underline; font-weight:700; font-size:15px; font-family:serif;">U</span>
+                </button>
+
+                <!-- 6. Tachado (S) -->
+                <button type="button" class="upnote-btn" id="btn-strike" title="Tachado" onclick="editorFormat('strikeThrough')">
+                    <span style="text-decoration:line-through; font-weight:700; font-size:15px; font-family:sans-serif;">S</span>
+                </button>
+
+                <!-- 7. Cor do Texto (A) -->
+                <button type="button" class="upnote-btn" id="btn-color" title="Cor do Texto" onclick="toggleUpnoteMenu('popover-color', event)">
+                    <span style="font-weight:700; font-size:14px; position:relative; display:inline-flex; flex-direction:column; align-items:center;">
+                        A<span style="height:2px; width:12px; background:#4f46e5; margin-top:-2px; border-radius:1px;"></span>
+                    </span>
+                </button>
+
+                <!-- 8. Marca-texto / Destaque -->
+                <button type="button" class="upnote-btn" id="btn-highlight" title="Destacar / Marca-texto" onclick="toggleUpnoteMenu('popover-highlight', event)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11-6 6v3h3l6-6"></path><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"></path></svg>
+                </button>
+
+                <!-- 9. Alinhamento -->
+                <button type="button" class="upnote-btn" id="btn-align" title="Alinhamento" onclick="toggleUpnoteMenu('popover-align', event)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>
+                </button>
+
+                <span class="upnote-divider-v"></span>
+
+                <!-- 10. Lista de Tarefas (Checklist) -->
+                <button type="button" class="upnote-btn" id="btn-checklist" title="Lista de Tarefas (Checklist)" onclick="insertCheckbox()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                </button>
+
+                <!-- 11. Lista com Marcadores -->
+                <button type="button" class="upnote-btn" id="btn-bullet" title="Lista com Marcadores" onclick="editorFormat('insertUnorderedList')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                </button>
+
+                <!-- 12. Lista Numerada -->
+                <button type="button" class="upnote-btn" id="btn-numbered" title="Lista Numerada" onclick="editorFormat('insertOrderedList')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"></line><line x1="10" y1="12" x2="21" y2="12"></line><line x1="10" y1="18" x2="21" y2="18"></line><path d="M4 6h1v4"></path><path d="M4 10h2"></path><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"></path></svg>
+                </button>
+
+                <span class="upnote-divider-v"></span>
+
+                <!-- 13. Desfazer (Undo) -->
+                <button type="button" class="upnote-btn" id="btn-undo" title="Desfazer (Ctrl+Z)" onclick="editorFormat('undo')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"></path><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"></path></svg>
+                </button>
+
+                <!-- 14. Refazer (Redo) -->
+                <button type="button" class="upnote-btn" id="btn-redo" title="Refazer (Ctrl+Y)" onclick="editorFormat('redo')">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"></path><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"></path></svg>
+                </button>
+
+                <!-- 15. Citação (Quote) -->
+                <button type="button" class="upnote-btn" id="btn-quote" title="Bloco de Citação" onclick="editorFormat('formatBlock', 'blockquote')">
+                    <span style="font-size:19px; font-weight:800; font-family:serif; line-height:1;">&ldquo;</span>
+                </button>
+
+                <!-- 16. Bloco de Código -->
+                <button type="button" class="upnote-btn" id="btn-code" title="Bloco de Código" onclick="insertCodeBlock()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                </button>
+
+                <!-- 17. Menu Mais Opções (···) - IDENTICO AO SCREENSHOT DO UPNOTE -->
+                <button type="button" class="upnote-btn" id="btn-more" title="Mais Opções" onclick="toggleUpnoteMenu('popover-more', event)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1.5"></circle><circle cx="19" cy="12" r="1.5"></circle><circle cx="5" cy="12" r="1.5"></circle></svg>
+                </button>
+            </div>
+
+            <!-- ======================================================================
+                 POPOVERS FLUTUANTES ESTILO UPNOTE (OCULTOS VIA DISPLAY:NONE)
+                 ====================================================================== -->
+
+            <!-- Popover 1: Mais Opções (···) IDENTICO À IMAGEM DO UPNOTE -->
+            <div id="popover-more" class="upnote-popover" style="display: none; right: 16px; min-width: 270px; max-height: calc(100vh - 120px); overflow-y: auto;">
+                    <button type="button" class="upnote-menu-item" onclick="insertCodeBlock(); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                            </span>
+                            <span>Code Block</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut"></span>
+                    </button>
+
+                    <button type="button" class="upnote-menu-item" onclick="openLinkModal(); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                            </span>
+                            <span>Add a link</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">Ctrl K</span>
+                    </button>
+
+                    <button type="button" class="upnote-menu-item" onclick="insertDivider(); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6" stroke-dasharray="2 2"></line><line x1="3" y1="18" x2="21" y2="18" stroke-dasharray="2 2"></line></svg>
+                            </span>
+                            <span>Insert Divider</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">Ctrl ⇧ H</span>
+                    </button>
+
+                    <button type="button" class="upnote-menu-item" onclick="openTexModal(); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon" style="font-family:'Times New Roman',serif; font-style:italic; font-weight:700;">
+                                f(x)
+                            </span>
+                            <span>TeX Formula</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">Ctrl ⇧ M</span>
+                    </button>
+
+                    <button type="button" class="upnote-menu-item" onclick="editorFormat('subscript'); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon" style="font-size:13px; font-weight:600;">
+                                x₂
+                            </span>
+                            <span>Subscript</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">Ctrl ⇧ ;</span>
+                    </button>
+
+                    <button type="button" class="upnote-menu-item" onclick="editorFormat('superscript'); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon" style="font-size:13px; font-weight:600;">
+                                x²
+                            </span>
+                            <span>Superscript</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">Ctrl ⇧ '</span>
+                    </button>
+
+                    <button type="button" class="upnote-menu-item" onclick="editorFormat('removeFormat'); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon" style="text-decoration:line-through; font-weight:700;">
+                                A̸
+                            </span>
+                            <span>Remove formatting</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">Ctrl \</span>
+                    </button>
+
+                    <button type="button" class="upnote-menu-item" onclick="editorFormat('indent'); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 8 7 12 3 16"></polyline><line x1="21" y1="12" x2="11" y2="12"></line><line x1="21" y1="6" x2="11" y2="6"></line><line x1="21" y1="18" x2="11" y2="18"></line></svg>
+                            </span>
+                            <span>Indent</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">Tab</span>
+                    </button>
+
+                    <button type="button" class="upnote-menu-item" onclick="editorFormat('outdent'); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 8 3 12 7 16"></polyline><line x1="21" y1="12" x2="11" y2="12"></line><line x1="21" y1="6" x2="11" y2="6"></line><line x1="21" y1="18" x2="11" y2="18"></line></svg>
+                            </span>
+                            <span>Outdent</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">⇧ Tab</span>
+                    </button>
+
+                    <button type="button" class="upnote-menu-item" onclick="moveListItem('up'); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                            </span>
+                            <span>Move list up</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">Ctrl Alt ↑</span>
+                    </button>
+
+                    <button type="button" class="upnote-menu-item" onclick="moveListItem('down'); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                            </span>
+                            <span>Move list down</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">Ctrl Alt ↓</span>
+                    </button>
+
+                    <button type="button" class="upnote-menu-item" onclick="focusEditor(); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                            </span>
+                            <span>Edit</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut"></span>
+                    </button>
+
+                    <div style="height:1px; background:var(--border-color); margin:4px 0;"></div>
+
+                    <button type="button" class="upnote-menu-item" onclick="openShareModal('{{ selected_note.id }}', {{ selected_note.is_shared|yesno:'true,false' }}, '{% if selected_note.is_shared %}{{ selected_note.share_token }}{% endif %}'); closeAllPopovers();">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">🔗</span>
+                            <span>Share by link...</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut"></span>
+                    </button>
+
+                    <a href="{% url 'exports:note_pdf' note_id=selected_note.id %}" class="upnote-menu-item" style="text-decoration:none;">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">📄</span>
+                            <span>Export as PDF</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">.pdf</span>
+                    </a>
+
+                    <a href="{% url 'exports:note_docx' note_id=selected_note.id %}" class="upnote-menu-item" style="text-decoration:none;">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">📝</span>
+                            <span>Export as Word</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut">.docx</span>
+                    </a>
+
+                    <div style="height:1px; background:var(--border-color); margin:4px 0;"></div>
+
+                    <button type="button"
+                            class="upnote-menu-item"
+                            onclick="closeAllPopovers(); openConfirmDeleteModal('{{ selected_note.id }}', 'trash', '{{ selected_note.title|escapejs }}');"
+                            style="color:#ef4444 !important; width:100%; text-align:left; background:transparent; border:none; cursor:pointer;">
+                        <span class="upnote-menu-item-left">
+                            <span class="upnote-menu-item-icon">🗑️</span>
+                            <span style="color:#ef4444; font-weight:600;">Move to trash</span>
+                        </span>
+                        <span class="upnote-menu-item-shortcut"></span>
+                    </button>
+                </div>
+
+            <!-- Popover 2: Níveis de Cabeçalho (H) -->
+            <div id="popover-heading" class="upnote-popover" style="display: none; left: 45px; min-width: 220px;">
+                <button type="button" class="upnote-menu-item" onclick="setHeading('h1'); closeAllPopovers();">
+                    <span style="font-size:20px; font-weight:800;">Heading 1</span>
+                    <span class="upnote-menu-item-shortcut">Ctrl Alt 1</span>
+                </button>
+                <button type="button" class="upnote-menu-item" onclick="setHeading('h2'); closeAllPopovers();">
+                    <span style="font-size:17px; font-weight:700;">Heading 2</span>
+                    <span class="upnote-menu-item-shortcut">Ctrl Alt 2</span>
+                </button>
+                <button type="button" class="upnote-menu-item" onclick="setHeading('h3'); closeAllPopovers();">
+                    <span style="font-size:15px; font-weight:600;">Heading 3</span>
+                    <span class="upnote-menu-item-shortcut">Ctrl Alt 3</span>
+                </button>
+                <button type="button" class="upnote-menu-item" onclick="setHeading('h4'); closeAllPopovers();">
+                    <span style="font-size:14px; font-weight:600;">Heading 4</span>
+                    <span class="upnote-menu-item-shortcut">Ctrl Alt 4</span>
+                </button>
+                <button type="button" class="upnote-menu-item" onclick="setHeading('p'); closeAllPopovers();">
+                    <span style="font-size:13.5px; font-weight:400;">Normal Text</span>
+                    <span class="upnote-menu-item-shortcut">Ctrl Alt 0</span>
+                </button>
+            </div>
+
+            <!-- Popover 3: Paleta de Cores de Texto (A) -->
+            <div id="popover-color" class="upnote-popover" style="display: none; left: 165px; min-width: 180px;">
+                <div style="padding:8px 12px 4px; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Cor do Texto</div>
+                <div class="color-grid">
+                    <div class="color-swatch" style="background:var(--text-primary);" onclick="setTextColor('inherit'); closeAllPopovers();" title="Padrão"></div>
+                    <div class="color-swatch" style="background:#ef4444;" onclick="setTextColor('#ef4444'); closeAllPopovers();" title="Vermelho"></div>
+                    <div class="color-swatch" style="background:#f97316;" onclick="setTextColor('#f97316'); closeAllPopovers();" title="Laranja"></div>
+                    <div class="color-swatch" style="background:#eab308;" onclick="setTextColor('#eab308'); closeAllPopovers();" title="Amarelo"></div>
+                    <div class="color-swatch" style="background:#10b981;" onclick="setTextColor('#10b981'); closeAllPopovers();" title="Verde"></div>
+                    <div class="color-swatch" style="background:#06b6d4;" onclick="setTextColor('#06b6d4'); closeAllPopovers();" title="Ciano"></div>
+                    <div class="color-swatch" style="background:#3b82f6;" onclick="setTextColor('#3b82f6'); closeAllPopovers();" title="Azul"></div>
+                    <div class="color-swatch" style="background:#6366f1;" onclick="setTextColor('#6366f1'); closeAllPopovers();" title="Índigo"></div>
+                    <div class="color-swatch" style="background:#a855f7;" onclick="setTextColor('#a855f7'); closeAllPopovers();" title="Roxo"></div>
+                    <div class="color-swatch" style="background:#ec4899;" onclick="setTextColor('#ec4899'); closeAllPopovers();" title="Rosa"></div>
+                </div>
+            </div>
+
+            <!-- Popover 4: Paleta de Destaque / Marca-texto -->
+            <div id="popover-highlight" class="upnote-popover" style="display: none; left: 200px; min-width: 180px;">
+                <div style="padding:8px 12px 4px; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Marca-texto</div>
+                <div class="color-grid">
+                    <div class="color-swatch" style="background:#fef08a;" onclick="setTextHighlight('#fef08a'); closeAllPopovers();" title="Amarelo"></div>
+                    <div class="color-swatch" style="background:#bbf7d0;" onclick="setTextHighlight('#bbf7d0'); closeAllPopovers();" title="Verde"></div>
+                    <div class="color-swatch" style="background:#bae6fd;" onclick="setTextHighlight('#bae6fd'); closeAllPopovers();" title="Azul"></div>
+                    <div class="color-swatch" style="background:#fbcfe8;" onclick="setTextHighlight('#fbcfe8'); closeAllPopovers();" title="Rosa"></div>
+                    <div class="color-swatch" style="background:#fed7aa;" onclick="setTextHighlight('#fed7aa'); closeAllPopovers();" title="Laranja"></div>
+                    <div class="color-swatch" style="background:#e9d5ff;" onclick="setTextHighlight('#e9d5ff'); closeAllPopovers();" title="Roxo"></div>
+                    <div class="color-swatch" style="background:transparent; border:1px dashed var(--text-faint); display:flex; align-items:center; justify-content:center; font-size:10px; color:var(--text-muted);" onclick="setTextHighlight('transparent'); closeAllPopovers();" title="Sem destaque">✕</div>
+                </div>
+            </div>
+
+            <!-- Popover 5: Alinhamento -->
+            <div id="popover-align" class="upnote-popover" style="display: none; left: 235px; min-width: 190px;">
+                <button type="button" class="upnote-menu-item" onclick="editorFormat('justifyLeft'); closeAllPopovers();">
+                    <span>Alinhar à Esquerda</span>
+                    <span class="upnote-menu-item-shortcut">Ctrl ⇧ L</span>
+                </button>
+                <button type="button" class="upnote-menu-item" onclick="editorFormat('justifyCenter'); closeAllPopovers();">
+                    <span>Centralizar</span>
+                    <span class="upnote-menu-item-shortcut">Ctrl ⇧ E</span>
+                </button>
+                <button type="button" class="upnote-menu-item" onclick="editorFormat('justifyRight'); closeAllPopovers();">
+                    <span>Alinhar à Direita</span>
+                    <span class="upnote-menu-item-shortcut">Ctrl ⇧ R</span>
+                </button>
+                <button type="button" class="upnote-menu-item" onclick="editorFormat('justifyFull'); closeAllPopovers();">
+                    <span>Justificar</span>
+                    <span class="upnote-menu-item-shortcut">Ctrl ⇧ J</span>
+                </button>
+            </div>
+
+            <!-- Popover 6: Menu Inserir (+) -->
+            <div id="popover-insert" class="upnote-popover" style="display: none; left: 14px; min-width: 210px;">
+                <button type="button" class="upnote-menu-item" onclick="insertImagePrompt(); closeAllPopovers();">
+                    <span>🖼️ Inserir Imagem</span>
+                </button>
+                <button type="button" class="upnote-menu-item" onclick="insertTable(3, 3); closeAllPopovers();">
+                    <span>📊 Inserir Tabela (3x3)</span>
+                </button>
+                <button type="button" class="upnote-menu-item" onclick="openLinkModal(); closeAllPopovers();">
+                    <span>🔗 Inserir Link</span>
+                </button>
+                <button type="button" class="upnote-menu-item" onclick="openTexModal(); closeAllPopovers();">
+                    <span>📐 Fórmula TeX</span>
+                </button>
+                <button type="button" class="upnote-menu-item" onclick="insertDivider(); closeAllPopovers();">
+                    <span>➖ Linha Divisória</span>
+                </button>
+            </div>
+            {% endif %}
+        {% else %}
+            <!-- Estado Vazio (Sem nota selecionada) -->
+            <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-faint); padding:20px;">
+                <div style="font-size: 48px; margin-bottom: 12px;">✍️</div>
+                <h3 style="color:#f8fafc; font-size:18px; margin-bottom:6px;">Nenhuma anotação aberta</h3>
+                <p style="font-size:14px; margin-bottom:18px;">Selecione uma nota na lista ao lado ou crie uma nova agora mesmo.</p>
+                {% if current_filter != 'trash' %}
+                    <form method="post" action="{% url 'notes:note_create' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary" style="font-size:14px; padding:0 20px;">
+                            Criar Nova Anotação
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endif %}
+    </main>
+
+</div>
+
+<!-- ==========================================================================
+     BARRA INFERIOR MOBILE (SMARTPHONES)
+     ========================================================================== -->
+<nav class="mobile-bottom-nav">
+    <a href="{% url 'notes:app' %}" class="mobile-nav-btn {% if current_filter == 'all' and not active_notebook %}active{% endif %}">
+        <span>📝</span>
+        <span>Notas</span>
+    </a>
+    <button onclick="openMobileSidebar()" class="mobile-nav-btn">
+        <span>📁</span>
+        <span>Cadernos</span>
+    </button>
+    <button type="button" onclick="toggleTheme()" class="mobile-nav-btn" title="Alternar Modo Claro / Escuro">
+        <span class="theme-toggle-icon">🌙</span>
+        <span>Tema</span>
+    </button>
+    <form method="post" action="{% url 'notes:note_create' %}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="mobile-nav-btn mobile-nav-btn-new" title="Nova Nota">+</button>
+    </form>
+    <a href="/dados-pessoais/" class="mobile-nav-btn">
+        <span>🛡️</span>
+        <span>LGPD</span>
+    </a>
+    <form action="{% url 'logout' %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="mobile-nav-btn">
+            <span>🚪</span>
+            <span>Sair</span>
+        </button>
+    </form>
+</nav>
+
+<!-- ==========================================================================
+     MODAL 1: CRIAR CADERNO
+     ========================================================================== -->
+<div id="modal-new-notebook" class="modal-overlay">
+    <div class="modal-box">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+            <h3 style="font-size:18px; font-weight:700; margin:0; color:var(--text-primary);">Novo Caderno</h3>
+            <button type="button" onclick="closeModal('modal-new-notebook')" class="modal-close-btn" title="Fechar" aria-label="Fechar">&times;</button>
+        </div>
+        <form method="post" action="{% url 'notes:notebook_create' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label class="form-label">Título do Caderno</label>
+                <input type="text" name="title" class="form-input" placeholder="Ex: Projetos, Diário, Estudos" required autofocus>
+            </div>
+            <div style="display:flex; gap:12px;">
+                <div class="form-group" style="flex:1;">
+                    <label class="form-label">Ícone</label>
+                    <input type="text" name="icon" class="form-input" value="📁" maxlength="4">
+                </div>
+                <div class="form-group" style="flex:2;">
+                    <label class="form-label">Caderno Pai (Opcional)</label>
+                    <select name="parent_id" class="form-select">
+                        <option value="">Nenhum (Caderno Raiz)</option>
+                        {% for nb in notebooks %}
+                            <option value="{{ nb.id }}">{{ nb.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="button" onclick="closeModal('modal-new-notebook')" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Criar Caderno</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 2: CRIAR TAG
+     ========================================================================== -->
+<div id="modal-new-tag" class="modal-overlay">
+    <div class="modal-box">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+            <h3 style="font-size:18px; font-weight:700; margin:0; color:var(--text-primary);">Nova Etiqueta / Tag</h3>
+            <button type="button" onclick="closeModal('modal-new-tag')" class="modal-close-btn" title="Fechar" aria-label="Fechar">&times;</button>
+        </div>
+        <form method="post" action="{% url 'notes:tag_create' %}">
+            {% csrf_token %}
+            {% if selected_note %}
+                <input type="hidden" name="note_id" value="{{ selected_note.id }}">
+            {% endif %}
+            <div class="form-group">
+                <label class="form-label">Nome da Tag (sem #)</label>
+                <input type="text" name="name" class="form-input" placeholder="Ex: urgente, ideias, trabalho" required autofocus>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="button" onclick="closeModal('modal-new-tag')" class="btn btn-secondary">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Criar Tag</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 3: PAYWALL (LIMITE DE 50 NOTAS DO PLANO GRATUITO ATINGIDO)
+     ========================================================================== -->
+<div id="paywall-modal" class="modal-overlay">
+    <div class="modal-box" style="text-align: center; border-color: rgba(99, 102, 241, 0.4);">
+        <div style="width:56px; height:56px; border-radius:50%; background:rgba(99, 102, 241, 0.15); color:#818cf8; display:inline-flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:16px;">
+            🚀
+        </div>
+        <h3 style="font-size:20px; font-weight:800; color:#ffffff; margin-bottom:8px;">
+            Limite de 50 Notas Atingido
+        </h3>
+        <p style="font-size:14px; color:#94a3b8; line-height:1.5; margin-bottom:20px;">
+            Você aproveitou o máximo do seu plano gratuito! Para continuar criando notas ilimitadas e manter seu histórico seguro, faça o upgrade para o <strong>skdnote Pro</strong> por um valor acessível.
+        </p>
+
+        <div style="background:rgba(255,255,255,0.04); border-radius:12px; padding:16px; margin-bottom:20px; text-align:left;">
+            <div style="font-size:13px; font-weight:700; color:#f8fafc; margin-bottom:8px;">Vantagens do Plano Pro:</div>
+            <ul style="font-size:12.5px; color:#cbd5e1; margin-left:18px; line-height:1.6;">
+                <li>Notas e cadernos 100% ilimitados</li>
+                <li>Anexos de arquivos de até 25MB</li>
+                <li>Histórico de versões de até 30 dias</li>
+                <li>Acesso prioritário às novas versões</li>
+            </ul>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <a href="/subscriptions/checkout/?plan=pro&currency={{ geo_currency }}" class="btn btn-primary btn-block">
+                {% if geo_currency == 'BRL' %}
+                    Assinar Pro Ilimitado (a partir de R$ 9,90/mês)
+                {% elif geo_currency == 'EUR' %}
+                    Assinar Pro Ilimitado (a partir de € 1.99/mês)
+                {% else %}
+                    Assinar Pro Ilimitado (a partir de $ 1.99/mês)
+                {% endif %}
+            </a>
+            <a href="{% url 'pricing_shortcut' %}" class="btn btn-secondary btn-block" style="text-decoration:none;">
+                Ver Todos os Planos e Moedas
+            </a>
+            <button type="button" onclick="closeModal('paywall-modal')" class="btn btn-ghost" style="margin-top:4px; font-size:12.5px; height: 32px;">
+                Continuar no Plano Gratuito
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 4: INSERIR LINK (Ctrl+K) ESTILO UPNOTE
+     ========================================================================== -->
+<div id="modal-insert-link" class="modal-overlay">
+    <div class="modal-box">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+            <h3 style="font-size:18px; font-weight:700; margin:0; color:var(--text-primary);">🔗 Inserir Link</h3>
+            <button type="button" onclick="closeModal('modal-insert-link')" class="modal-close-btn" title="Fechar" aria-label="Fechar">&times;</button>
+        </div>
+        <div style="margin-bottom:12px;">
+            <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:4px;">Texto a exibir:</label>
+            <input type="text" id="link-text-input" class="form-input" placeholder="Ex: Meu site favorito" style="width:100%;">
+        </div>
+        <div style="margin-bottom:18px;">
+            <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:4px;">Endereço URL:</label>
+            <input type="url" id="link-url-input" class="form-input" placeholder="https://exemplo.com" style="width:100%;">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <button type="button" onclick="closeModal('modal-insert-link')" class="btn btn-secondary" style="height:34px; font-size:13px;">Cancelar</button>
+            <button type="button" onclick="applyInsertLink()" class="btn btn-primary" style="height:34px; font-size:13px;">Inserir Link</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 5: INSERIR FÓRMULA TEX (Ctrl+Shift+M) ESTILO UPNOTE
+     ========================================================================== -->
+<div id="modal-insert-tex" class="modal-overlay">
+    <div class="modal-box">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+            <h3 style="font-size:18px; font-weight:700; margin:0; color:var(--text-primary);"><span style="font-family:'Times New Roman',serif; font-style:italic;">f(x)</span> Inserir Fórmula TeX / Matemática</h3>
+            <button type="button" onclick="closeModal('modal-insert-tex')" class="modal-close-btn" title="Fechar" aria-label="Fechar">&times;</button>
+        </div>
+        <div style="margin-bottom:16px;">
+            <label style="display:block; font-size:12px; color:var(--text-muted); margin-bottom:4px;">Expressão TeX:</label>
+            <input type="text" id="tex-formula-input" class="form-input" placeholder="Ex: E = mc^2 ou \int_0^\infty e^{-x} dx" style="width:100%;">
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:8px;">
+            <button type="button" onclick="closeModal('modal-insert-tex')" class="btn btn-secondary" style="height:34px; font-size:13px;">Cancelar</button>
+            <button type="button" onclick="applyInsertTex()" class="btn btn-primary" style="height:34px; font-size:13px;">Inserir Fórmula</button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 6: COMPARTILHAR ANOTAÇÃO POR LINK SEGURO
+     ========================================================================== -->
+<div id="modal-share-note" class="modal-overlay">
+    <div class="modal-box" style="max-width: 480px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+            <h3 style="font-size:18px; font-weight:700; margin:0; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+                <span>🔗</span> Compartilhar por Link
+            </h3>
+            <button type="button" onclick="closeModal('modal-share-note')" class="modal-close-btn" title="Fechar" aria-label="Fechar">&times;</button>
+        </div>
+        <p style="font-size:13px; color:var(--text-secondary); margin:0 0 16px 0; line-height:1.5;">
+            Qualquer pessoa com o link poderá visualizar esta anotação em um layout limpo de leitura, sem precisar de conta no skdnote.
+        </p>
+
+        <div id="share-active-panel" style="display:none; background:var(--bg-surface); border:1px solid var(--border-color); border-radius:10px; padding:14px; margin-bottom:16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:12px; font-weight:700; color:#10b981; display:flex; align-items:center; gap:6px;">
+                    <span style="width:7px; height:7px; border-radius:50%; background:#10b981;"></span>
+                    Link Ativo e Público
+                </span>
+                <a id="share-open-link" href="#" target="_blank" style="font-size:12px; color:#4f46e5; text-decoration:none; font-weight:600;">Abrir Página Pública ↗</a>
+            </div>
+
+            <div style="display:flex; gap:8px;">
+                <input type="text" id="share-url-input" readonly class="form-input" style="flex:1; font-size:12.5px; background:var(--editor-bg);" onclick="this.select();">
+                <button type="button" id="share-copy-btn" onclick="copyModalShareLink()" class="btn btn-primary" style="font-size:12px; height:34px; padding:0 12px; white-space:nowrap;">
+                    Copiar
+                </button>
+            </div>
+        </div>
+
+        <div id="share-inactive-panel" style="display:none; background:var(--bg-surface); border:1px dashed var(--border-color); border-radius:10px; padding:18px; text-align:center; margin-bottom:16px;">
+            <p style="font-size:13px; color:var(--text-muted); margin:0 0 12px 0;">O compartilhamento por link desta anotação está atualmente desativado.</p>
+            <button type="button" onclick="executeToggleShare('enable')" class="btn btn-primary" style="font-size:13px; height:36px; padding:0 16px;">
+                Gerar e Ativar Link Público
+            </button>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border-color); padding-top:12px;">
+            <button type="button" id="share-disable-btn" onclick="executeToggleShare('disable')" style="background:none; border:none; color:#ef4444; font-size:12px; cursor:pointer; text-decoration:underline; display:none;">
+                Desativar link de compartilhamento
+            </button>
+            <button type="button" onclick="closeModal('modal-share-note')" class="btn btn-secondary" style="height:32px; font-size:12px; margin-left:auto;">
+                Fechar
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================================================
+     MODAL 7: CONFIRMAÇÃO ESTILIZADA DE EXCLUSÃO (LIXEIRA / DEFINITIVA)
+     ========================================================================== -->
+<div id="modal-confirm-delete" class="modal-overlay" style="display:none;">
+    <div class="modal-box" style="max-width: 440px; text-align: center; position: relative;">
+        <button type="button" onclick="closeModal('modal-confirm-delete')" class="modal-close-btn" style="position: absolute; top: 16px; right: 16px;" title="Fechar" aria-label="Fechar">&times;</button>
+        
+        <div id="confirm-delete-icon-wrapper" style="width: 58px; height: 58px; margin: 0 auto 16px; border-radius: 50%; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 0 24px rgba(239, 68, 68, 0.15);">
+            🗑️
+        </div>
+
+        <h3 id="confirm-delete-title" style="margin: 0 0 8px 0; font-size: 19px; font-weight: 700; color: var(--text-main);">
+            Mover para a Lixeira?
+        </h3>
+        
+        <p id="confirm-delete-message" style="margin: 0 0 16px 0; font-size: 13.5px; color: var(--text-muted); line-height: 1.5;">
+            Tem certeza que deseja mover esta anotação para a Lixeira? Você poderá restaurá-la a qualquer momento.
+        </p>
+
+        <div id="confirm-delete-preview-box" style="background: var(--bg-surface, rgba(0,0,0,0.03)); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 14px; margin-bottom: 20px; text-align: left; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 18px;">📄</span>
+            <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                <span id="confirm-delete-note-name" style="font-weight: 600; font-size: 13px; color: var(--text-main);">Sem título</span>
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="closeModal('modal-confirm-delete')" class="btn btn-secondary" style="flex: 1; height: 38px; font-size: 13px; font-weight: 500;">
+                Cancelar
+            </button>
+            <button type="button" id="btn-execute-confirmed-delete" class="btn btn-danger" style="flex: 1; height: 38px; font-size: 13px; font-weight: 600;">
+                Mover para Lixeira
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Abertura e fechamento de modais garantidos imediatamente
+    window.openModal = function(modalId) {
+        var modal = document.getElementById(modalId);
+        if (modal) modal.style.display = 'flex';
+    };
+
+    window.closeModal = function(modalId) {
+        var modal = document.getElementById(modalId);
+        if (modal) modal.style.display = 'none';
+    };
+
+    // Helper CSRF imediato com suporte a inputs de formulário e cookies
+    window.getCsrfToken = function() {
+        var input = document.querySelector('[name=csrfmiddlewaretoken]');
+        if (input && input.value) return input.value;
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                if (cookie.substring(0, 10) === ('csrftoken=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(10));
+                    break;
+                }
+            }
+        }
+        return cookieValue || '';
+    };
+
+    // Definição imediata contra cache e colisão de APIs do navegador
+    window.toggleUpnoteMenu = function(popoverId, e) {
+        if (e && e.stopPropagation) {
+            e.stopPropagation();
+        }
+        var target = document.getElementById(popoverId);
+        if (!target) return;
+        var isCurrentlyOpen = (target.style.display === 'flex');
+        closeAllPopovers();
+        if (!isCurrentlyOpen) {
+            if (typeof saveCurrentSelection === 'function') saveCurrentSelection();
+            target.style.display = 'flex';
+        }
+    };
+    window.togglePopover = window.toggleUpnoteMenu;
+
+    window.closeAllPopovers = function() {
+        document.querySelectorAll('.upnote-popover').forEach(function(p) {
+            p.style.display = 'none';
+        });
+    };
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.upnote-bottom-bar') && !e.target.closest('.upnote-popover') && !e.target.closest('.modal-overlay')) {
+            closeAllPopovers();
+        }
+    });
+
+    // Gestão do Modal de Compartilhamento por Link
+    window.currentShareNoteId = window.currentShareNoteId || null;
+
+    window.openShareModal = function(noteId, isShared, token) {
+        window.currentShareNoteId = noteId;
+        var activePanel = document.getElementById('share-active-panel');
+        var inactivePanel = document.getElementById('share-inactive-panel');
+        var urlInput = document.getElementById('share-url-input');
+        var openLink = document.getElementById('share-open-link');
+        var disableBtn = document.getElementById('share-disable-btn');
+        var copyBtn = document.getElementById('share-copy-btn');
+        if (copyBtn) copyBtn.textContent = 'Copiar';
+
+        if (isShared && token) {
+            var fullUrl = window.location.origin + '/share/' + token + '/';
+            if (urlInput) urlInput.value = fullUrl;
+            if (openLink) openLink.href = fullUrl;
+            if (activePanel) activePanel.style.display = 'block';
+            if (inactivePanel) inactivePanel.style.display = 'none';
+            if (disableBtn) disableBtn.style.display = 'inline-block';
+        } else {
+            if (activePanel) activePanel.style.display = 'none';
+            if (inactivePanel) inactivePanel.style.display = 'block';
+            if (disableBtn) disableBtn.style.display = 'none';
+        }
+
+        window.openModal('modal-share-note');
+    };
+
+    window.executeToggleShare = function(action) {
+        if (!window.currentShareNoteId) return;
+        var formData = new FormData();
+        formData.append('action', action);
+
+        fetch('/app/' + window.currentShareNoteId + '/share/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': window.getCsrfToken(),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+            if (data.status === 'ok') {
+                window.openShareModal(window.currentShareNoteId, data.is_shared, data.token);
+                var headerBtn = document.getElementById('btn-share-header');
+                if (headerBtn) {
+                    if (data.is_shared) {
+                        headerBtn.classList.add('active');
+                    } else {
+                        headerBtn.classList.remove('active');
+                    }
+                }
+            }
+        })
+        .catch(function(err) {
+            console.error('Erro ao alternar compartilhamento:', err);
+            alert('Não foi possível alterar o compartilhamento da anotação.');
+        });
+    };
+
+    window.copyModalShareLink = function() {
+        var input = document.getElementById('share-url-input');
+        if (!input || !input.value) return;
+        navigator.clipboard.writeText(input.value).then(function() {
+            var btn = document.getElementById('share-copy-btn');
+            if (btn) btn.textContent = 'Copiado! ✓';
+            setTimeout(function() {
+                if (btn) btn.textContent = 'Copiar';
+            }, 2000);
+        }).catch(function() {
+            input.select();
+            document.execCommand('copy');
+        });
+    };
+
+    // Ações de Exclusão e Restauração com Modal Estilizado e Fallback
+    window.openConfirmDeleteModal = function(noteId, type, noteTitle) {
+        if (!noteId) {
+            var idInput = document.getElementById('current-note-id');
+            noteId = idInput ? idInput.value : null;
+        }
+        if (!noteId) return;
+
+        if (!noteTitle) {
+            var titleEl = document.getElementById('editor-title');
+            if (titleEl && titleEl.value) {
+                noteTitle = titleEl.value;
+            } else {
+                var cardTitle = document.querySelector('.note-card[data-note-id="' + noteId + '"] .card-title-text');
+                noteTitle = cardTitle ? cardTitle.textContent.trim() : 'Sem título';
+            }
+        }
+
+        var titleEl = document.getElementById('confirm-delete-title');
+        var msgEl = document.getElementById('confirm-delete-message');
+        var nameEl = document.getElementById('confirm-delete-note-name');
+        var btnEl = document.getElementById('btn-execute-confirmed-delete');
+
+        if (nameEl) nameEl.textContent = noteTitle || 'Sem título';
+
+        if (type === 'permanent') {
+            if (titleEl) titleEl.textContent = 'Excluir definitivamente?';
+            if (msgEl) msgEl.textContent = 'ATENÇÃO: Esta ação é definitiva e não pode ser desfeita. Todo o conteúdo da anotação será apagado permanentemente.';
+            if (btnEl) {
+                btnEl.textContent = 'Excluir Definitivamente';
+                btnEl.style.background = '#dc2626';
+                btnEl.onclick = function() {
+                    window.closeModal('modal-confirm-delete');
+                    window.deleteNotePermanently(noteId);
+                };
+            }
+        } else {
+            if (titleEl) titleEl.textContent = 'Mover para a Lixeira?';
+            if (msgEl) msgEl.textContent = 'Tem certeza que deseja mover esta anotação para a Lixeira? Você poderá restaurá-la a qualquer momento na Lixeira.';
+            if (btnEl) {
+                btnEl.textContent = 'Mover para Lixeira';
+                btnEl.style.background = '#ef4444';
+                btnEl.onclick = function() {
+                    window.closeModal('modal-confirm-delete');
+                    window.moveNoteToTrash(noteId, false);
+                };
+            }
+        }
+
+        window.openModal('modal-confirm-delete');
+    };
+
+    window.moveNoteToTrash = function(noteId, confirmFirst) {
+        if (confirmFirst) {
+            window.openConfirmDeleteModal(noteId, 'trash');
+            return;
+        }
+        if (!noteId) {
+            var idInput = document.getElementById('current-note-id');
+            noteId = idInput ? idInput.value : null;
+        }
+        if (!noteId) return;
+
+        // Limpa autosave pendente para não salvar nota excluída
+        if (typeof saveTimeout !== 'undefined' && saveTimeout) {
+            clearTimeout(saveTimeout);
+        }
+
+        var csrf = window.getCsrfToken();
+        var form = document.getElementById('form-move-trash-' + noteId);
+
+        fetch('/app/' + noteId + '/trash/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrf,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(r) {
+            if (!r.ok) throw new Error('Falha HTTP ' + r.status);
+            return r.json();
+        })
+        .then(function() {
+            var card = document.querySelector('.note-card[data-note-id="' + noteId + '"]');
+            if (card) {
+                card.style.transition = 'all 0.25s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9) translateX(-20px)';
+                setTimeout(function() { card.remove(); }, 250);
+            }
+            window.location.href = '/app/';
+        })
+        .catch(function(err) {
+            console.warn('Executando fallback para submissão direta do formulário de exclusão:', err);
+            if (form) {
+                form.submit();
+            } else {
+                var newForm = document.createElement('form');
+                newForm.method = 'POST';
+                newForm.action = '/app/' + noteId + '/trash/';
+                var input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'csrfmiddlewaretoken';
+                input.value = csrf;
+                newForm.appendChild(input);
+                document.body.appendChild(newForm);
+                newForm.submit();
+            }
+        });
+    };
+
+    window.restoreNoteFromTrash = function(noteId) {
+        if (!noteId) {
+            var idInput = document.getElementById('current-note-id');
+            noteId = idInput ? idInput.value : null;
+        }
+        if (!noteId) return;
+
+        var csrf = window.getCsrfToken();
+        fetch('/app/' + noteId + '/restore/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(r) {
+            if (!r.ok) throw new Error('Falha HTTP ' + r.status);
+            return r.json();
+        })
+        .then(function() {
+            var card = document.querySelector('.note-card[data-note-id="' + noteId + '"]');
+            if (card) {
+                card.style.transition = 'all 0.25s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9) translateX(20px)';
+                setTimeout(function() { card.remove(); }, 250);
+            }
+            window.location.href = '/app/?note_id=' + noteId;
+        })
+        .catch(function(err) {
+            console.warn('Fallback para formulário de restauração:', err);
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/app/' + noteId + '/restore/';
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'csrfmiddlewaretoken';
+            input.value = csrf;
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        });
+    };
+
+    window.deleteNotePermanently = function(noteId) {
+        if (!noteId) {
+            var idInput = document.getElementById('current-note-id');
+            noteId = idInput ? idInput.value : null;
+        }
+        if (!noteId) return;
+
+        var csrf = window.getCsrfToken();
+        fetch('/app/' + noteId + '/delete/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(r) {
+            if (!r.ok) throw new Error('Falha HTTP ' + r.status);
+            return r.json();
+        })
+        .then(function() {
+            var card = document.querySelector('.note-card[data-note-id="' + noteId + '"]');
+            if (card) {
+                card.style.transition = 'all 0.25s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9) translateX(-20px)';
+                setTimeout(function() { card.remove(); }, 250);
+            }
+            window.location.href = '/app/?filter=trash';
+        })
+        .catch(function(err) {
+            console.warn('Fallback para formulário de exclusão permanente:', err);
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/app/' + noteId + '/delete/';
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'csrfmiddlewaretoken';
+            input.value = csrf;
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        });
+    };
+
+    // Suporte a Arrasto e Soltura (Drag & Drop) para a Lixeira e Restauração
+    window.handleNoteDragStart = function(e, noteId) {
+        e.dataTransfer.setData('text/plain', noteId);
+        e.dataTransfer.effectAllowed = 'move';
+        var card = e.currentTarget;
+        if (card) card.classList.add('is-dragging');
+        var trashNav = document.getElementById('nav-trash-target');
+        var allNotesNav = document.getElementById('nav-all-notes-target');
+        if (trashNav) trashNav.classList.add('trash-ready-drop');
+        if (allNotesNav) allNotesNav.classList.add('trash-ready-drop');
+    };
+
+    window.handleNoteDragEnd = function(e) {
+        var card = e.currentTarget;
+        if (card) card.classList.remove('is-dragging');
+        var trashNav = document.getElementById('nav-trash-target');
+        var allNotesNav = document.getElementById('nav-all-notes-target');
+        if (trashNav) {
+            trashNav.classList.remove('trash-ready-drop');
+            trashNav.classList.remove('trash-drag-over');
+        }
+        if (allNotesNav) {
+            allNotesNav.classList.remove('trash-ready-drop');
+            allNotesNav.classList.remove('trash-drag-over');
+        }
+    };
+
+    window.initTrashDragAndDrop = function() {
+        var trashNav = document.getElementById('nav-trash-target');
+        if (trashNav) {
+            trashNav.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                trashNav.classList.add('trash-drag-over');
+            });
+            trashNav.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+                trashNav.classList.add('trash-drag-over');
+            });
+            trashNav.addEventListener('dragleave', function(e) {
+                trashNav.classList.remove('trash-drag-over');
+            });
+            trashNav.addEventListener('drop', function(e) {
+                e.preventDefault();
+                trashNav.classList.remove('trash-drag-over');
+                trashNav.classList.remove('trash-ready-drop');
+
+                var noteId = e.dataTransfer.getData('text/plain');
+                if (noteId) {
+                    trashNav.style.transform = 'scale(1.15)';
+                    setTimeout(function() { trashNav.style.transform = ''; }, 200);
+                    window.moveNoteToTrash(noteId, false);
+                }
+            });
+        }
+
+        var allNotesNav = document.getElementById('nav-all-notes-target');
+        if (allNotesNav) {
+            allNotesNav.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                allNotesNav.classList.add('trash-drag-over');
+            });
+            allNotesNav.addEventListener('dragenter', function(e) {
+                e.preventDefault();
+                allNotesNav.classList.add('trash-drag-over');
+            });
+            allNotesNav.addEventListener('dragleave', function(e) {
+                allNotesNav.classList.remove('trash-drag-over');
+            });
+            allNotesNav.addEventListener('drop', function(e) {
+                e.preventDefault();
+                allNotesNav.classList.remove('trash-drag-over');
+                allNotesNav.classList.remove('trash-ready-drop');
+
+                var noteId = e.dataTransfer.getData('text/plain');
+                if (noteId) {
+                    allNotesNav.style.transform = 'scale(1.15)';
+                    setTimeout(function() { allNotesNav.style.transform = ''; }, 200);
+                    window.restoreNoteFromTrash(noteId);
+                }
+            });
+        }
+        // Funções de Gestão de Etiquetas / Tags (UpNote Style)
+        window.toggleTagDropdown = function(e) {
+            if (e && e.stopPropagation) e.stopPropagation();
+            var dd = document.getElementById('dropdown-tag-selector');
+            if (!dd) return;
+            var isVisible = dd.style.display !== 'none';
+            closeAllPopovers();
+            if (!isVisible) {
+                dd.style.display = 'block';
+                var inp = document.getElementById('quick-tag-input');
+                if (inp) { inp.focus(); inp.value = ''; }
+            }
+        };
+
+        window.handleQuickTagInputKeydown = function(e, noteId) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                var val = e.target.value.trim().replace('#', '');
+                if (!val) return;
+                window.toggleTagOnCurrentNote(noteId, null, val);
+                e.target.value = '';
+            }
+        };
+
+        window.toggleTagOnCurrentNote = function(noteId, tagId, tagName) {
+            if (!noteId) {
+                var idInput = document.getElementById('current-note-id');
+                noteId = idInput ? idInput.value : null;
+            }
+            if (!noteId) return;
+
+            var csrf = window.getCsrfToken();
+            var body = new URLSearchParams();
+            if (tagId) body.append('tag_id', tagId);
+            if (tagName) body.append('name', tagName);
+
+            fetch('/app/' + noteId + '/tags/toggle/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': csrf,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: body.toString()
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.status === 'ok') {
+                    window.renderNoteTags(data.tags, noteId);
+                }
+            });
+        };
+
+        window.renderNoteTags = function(tags, noteId) {
+            var list = document.getElementById('editor-tags-list');
+            if (list) {
+                if (!tags || tags.length === 0) {
+                    list.innerHTML = '<span id="no-tags-placeholder" style="font-size: 12px; color: var(--text-faint); font-style: italic;">Sem etiquetas (digite #etiqueta no texto ou adicione ao lado)</span>';
+                } else {
+                    var html = '';
+                    for (var i = 0; i < tags.length; i++) {
+                        var t = tags[i];
+                        html += '<span class="editor-tag-chip" data-tag-id="' + t.id + '" style="display: inline-flex; align-items: center; gap: 5px; background: rgba(129, 140, 248, 0.12); color: ' + t.color + '; border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 2px 8px; font-size: 11.5px; font-weight: 600;">' +
+                                '<span>#' + t.name + '</span>' +
+                                '<button type="button" onclick="toggleTagOnCurrentNote(\'' + noteId + '\', \'' + t.id + '\')" style="background:none; border:none; color:inherit; font-size:13px; line-height:1; cursor:pointer; padding:0; opacity:0.75;" title="Remover etiqueta">&times;</button>' +
+                                '</span>';
+                    }
+                    list.innerHTML = html;
+                }
+            }
+
+            // Atualiza tags no card correspondente na coluna de lista
+            var cardTags = document.getElementById('card-tags-' + noteId);
+            if (cardTags) {
+                if (!tags || tags.length === 0) {
+                    cardTags.innerHTML = '';
+                } else {
+                    var cardHtml = '';
+                    for (var j = 0; j < tags.length; j++) {
+                        var cTag = tags[j];
+                        cardHtml += '<span class="note-card-tag-pill" style="font-size: 10.5px; color: ' + cTag.color + '; background: rgba(129, 140, 248, 0.1); border-radius: 4px; padding: 1px 6px; font-weight: 500;">#' + cTag.name + '</span>';
+                    }
+                    cardTags.innerHTML = cardHtml;
+                }
+            }
+
+            // Atualiza os checks dentro do dropdown
+            if (tags) {
+                var activeTagIds = tags.map(function(t) { return t.id; });
+                document.querySelectorAll('.quick-tag-item').forEach(function(item) {
+                    var check = item.querySelector('.tag-status-icon');
+                    if (check) {
+                        var checkId = check.id.replace('tag-check-', '');
+                        check.textContent = activeTagIds.indexOf(checkId) !== -1 ? '✓' : '';
+                    }
+                });
+            }
+        };
+
+        window.deleteTagItem = function(tagId, tagName) {
+            if (!confirm('Deseja excluir a etiqueta #' + tagName + '? Ela será removida das anotações.')) return;
+            var csrf = window.getCsrfToken();
+            fetch('/app/tags/' + tagId + '/delete/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrf, 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function() {
+                var el = document.getElementById('nav-tag-wrapper-{{ tag.id }}') || document.getElementById('nav-tag-wrapper-' + tagId);
+                if (el) el.remove();
+                document.querySelectorAll('.editor-tag-chip[data-tag-id="' + tagId + '"]').forEach(function(chip) { chip.remove(); });
+                var urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('tag') === tagId) {
+                    window.location.href = '/app/';
+                }
+            });
+        };
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.initTrashDragAndDrop);
+    } else {
+        window.initTrashDragAndDrop();
+    }
+</script>
+<script src="/static/js/editor.js?v=3.0"></script>
+{% endblock %}

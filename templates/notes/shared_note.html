@@ -1,0 +1,377 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ note.title|default:"Anotação Compartilhada" }} — skdnote{% endblock %}
+{% block meta_description %}{{ note.preview_text|default:"Visualização de anotação compartilhada no skdnote." }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Layout de Leitura Pública Estilo UpNote / Distraction-Free */
+    .shared-page {
+        min-height: 100vh;
+        background-color: var(--editor-bg, #ffffff);
+        color: var(--text-primary, #0f172a);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .shared-header {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(12px);
+        background-color: rgba(255, 255, 255, 0.85);
+        border-bottom: 1px solid var(--border-color, #e2e8f0);
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    [data-theme="dark"] .shared-header {
+        background-color: rgba(15, 23, 42, 0.85);
+        border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .shared-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .shared-brand-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #4f46e5, #7c3aed);
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .shared-brand-name {
+        font-weight: 800;
+        font-size: 17px;
+        letter-spacing: -0.02em;
+    }
+
+    .shared-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .shared-btn-icon {
+        background: transparent;
+        border: 1px solid var(--border-color, #e2e8f0);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-size: 13px;
+        color: var(--text-secondary, #475569);
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+    }
+
+    .shared-btn-icon:hover {
+        background: var(--bg-hover, rgba(0, 0, 0, 0.04));
+        color: var(--text-primary, #0f172a);
+    }
+
+    .shared-btn-cta {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #ffffff !important;
+        border: none;
+        border-radius: 8px;
+        padding: 7px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: opacity 0.15s ease;
+    }
+
+    .shared-btn-cta:hover {
+        opacity: 0.92;
+    }
+
+    /* Conteúdo Principal */
+    .shared-container {
+        flex: 1 0 auto;
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 48px 24px 80px;
+        box-sizing: border-box;
+    }
+
+    .shared-title {
+        font-size: 34px;
+        font-weight: 800;
+        line-height: 1.25;
+        letter-spacing: -0.03em;
+        margin: 0 0 16px 0;
+        color: var(--text-primary, #0f172a);
+    }
+
+    .shared-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        font-size: 13px;
+        color: var(--text-muted, #64748b);
+        margin-bottom: 24px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid var(--border-color, #e2e8f0);
+    }
+
+    .shared-meta-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--bg-surface, #f8fafc);
+        border: 1px solid var(--border-color, #e2e8f0);
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+    }
+
+    /* Formatação do Conteúdo da Nota */
+    .shared-content {
+        font-size: 16px;
+        line-height: 1.7;
+        color: var(--text-primary, #1e293b);
+    }
+
+    .shared-content h1 { font-size: 26px; font-weight: 800; margin: 32px 0 12px; }
+    .shared-content h2 { font-size: 22px; font-weight: 700; margin: 28px 0 10px; }
+    .shared-content h3 { font-size: 18px; font-weight: 600; margin: 24px 0 8px; }
+    .shared-content h4 { font-size: 16px; font-weight: 600; margin: 20px 0 6px; }
+
+    .shared-content p {
+        margin: 0 0 14px 0;
+    }
+
+    .shared-content blockquote {
+        margin: 16px 0;
+        padding: 8px 18px;
+        border-left: 3px solid #6366f1;
+        background: var(--bg-surface, rgba(99, 102, 241, 0.05));
+        border-radius: 0 8px 8px 0;
+        font-style: italic;
+        color: var(--text-secondary, #475569);
+    }
+
+    .shared-content pre {
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 16px;
+        border-radius: 8px;
+        overflow-x: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 13.5px;
+        line-height: 1.5;
+        margin: 16px 0;
+    }
+
+    .shared-content code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.9em;
+        background: var(--bg-hover, rgba(0, 0, 0, 0.05));
+        padding: 2px 5px;
+        border-radius: 4px;
+    }
+
+    .shared-content pre code {
+        background: transparent;
+        padding: 0;
+        border-radius: 0;
+    }
+
+    .shared-content hr {
+        border: none;
+        border-top: 1px solid var(--border-color, #e2e8f0);
+        margin: 28px 0;
+    }
+
+    .shared-content ul, .shared-content ol {
+        margin: 12px 0 16px 24px;
+        padding: 0;
+    }
+
+    .shared-content li {
+        margin-bottom: 6px;
+    }
+
+    .shared-content .upnote-todo-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 6px 0;
+    }
+
+    .shared-content .upnote-todo-item input[type="checkbox"] {
+        width: 17px;
+        height: 17px;
+        accent-color: #4f46e5;
+        cursor: default;
+    }
+
+    .shared-content .upnote-todo-item.checked span {
+        text-decoration: line-through;
+        color: var(--text-muted, #94a3b8);
+    }
+
+    .shared-content table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+
+    .shared-content th, .shared-content td {
+        border: 1px solid var(--border-color, #e2e8f0);
+        padding: 10px 14px;
+        text-align: left;
+    }
+
+    .shared-content th {
+        background: var(--bg-surface, #f8fafc);
+        font-weight: 700;
+    }
+
+    .shared-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 16px 0;
+    }
+
+    /* Rodapé da página compartilhada */
+    .shared-footer {
+        border-top: 1px solid var(--border-color, #e2e8f0);
+        background: var(--bg-surface, #f8fafc);
+        padding: 32px 24px;
+        text-align: center;
+    }
+
+    .shared-footer-box {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .shared-footer-title {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: var(--text-primary, #0f172a);
+    }
+
+    .shared-footer-sub {
+        font-size: 13px;
+        color: var(--text-muted, #64748b);
+        margin-bottom: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="shared-page">
+
+    <!-- Cabeçalho de Navegação e Ações -->
+    <header class="shared-header">
+        <a href="{% url 'home' %}" class="shared-brand" title="skdnote — Página Inicial">
+            <div class="shared-brand-icon">S</div>
+            <span class="shared-brand-name">skdnote</span>
+        </a>
+
+        <div class="shared-header-actions">
+            <!-- Alternador de Tema Claro/Escuro -->
+            <button type="button" onclick="toggleTheme()" class="shared-btn-icon" title="Alternar Modo Claro / Escuro">
+                <span id="shared-theme-icon">🌓</span>
+                <span style="font-size:12px;">Tema</span>
+            </button>
+
+            <!-- Copiar Link -->
+            <button type="button" onclick="copyShareUrl()" id="btn-copy-share" class="shared-btn-icon" title="Copiar link desta anotação">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                <span id="copy-label">Copiar Link</span>
+            </button>
+
+            <a href="{% url 'register' %}" class="shared-btn-cta">
+                Criar Anotações Grátis
+            </a>
+        </div>
+    </header>
+
+    <!-- Artigo / Leitura da Anotação -->
+    <main class="shared-container">
+        <article>
+            <h1 class="shared-title">{{ note.title|default:"Sem título" }}</h1>
+
+            <div class="shared-meta">
+                {% if note.notebook %}
+                    <span class="shared-meta-badge">
+                        <span>{{ note.notebook.icon|default:"📁" }}</span>
+                        <span>{{ note.notebook.title }}</span>
+                    </span>
+                {% endif %}
+
+                <span>Atualizado em {{ note.updated_at|date:"d \d\e F \d\e Y \à\s H:i" }}</span>
+
+                {% for tag in note.tags.all %}
+                    <span class="shared-meta-badge" style="color: {{ tag.color }};">
+                        #{{ tag.name }}
+                    </span>
+                {% endfor %}
+            </div>
+
+            <div class="shared-content">
+                {% if note.content_html %}
+                    {{ note.content_html|safe }}
+                {% elif note.content_plain %}
+                    <p style="white-space: pre-wrap;">{{ note.content_plain }}</p>
+                {% else %}
+                    <p style="color: var(--text-muted); font-style: italic;">Esta anotação não possui conteúdo.</p>
+                {% endif %}
+            </div>
+        </article>
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="shared-footer">
+        <div class="shared-footer-box">
+            <div class="shared-footer-title">Gostou da experiência de leitura limpa?</div>
+            <div class="shared-footer-sub">O skdnote oferece um editor sem distrações estilo UpNote, sincronização na nuvem, exportação em PDF, DOCX, Markdown e planos localizados.</div>
+            <a href="{% url 'register' %}" class="shared-btn-cta" style="display:inline-block;">
+                Começar a Usar Gratuitamente &rarr;
+            </a>
+        </div>
+    </footer>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function copyShareUrl() {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            const label = document.getElementById('copy-label');
+            const originalText = label.textContent;
+            label.textContent = 'Link Copiado! ✓';
+            setTimeout(() => {
+                label.textContent = originalText;
+            }, 2500);
+        }).catch(() => {
+            prompt('Copie o link abaixo:', window.location.href);
+        });
+    }
+</script>
+{% endblock %}

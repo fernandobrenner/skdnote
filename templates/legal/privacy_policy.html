@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Política de Privacidade e LGPD — skdnote{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/auth.css">
+<style>
+    .legal-container {
+        max-width: 840px;
+        margin: 40px auto;
+        padding: 32px 24px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        color: var(--text-primary);
+        line-height: 1.7;
+    }
+    .legal-container h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    .legal-container h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-top: 28px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--border-card);
+        padding-bottom: 6px;
+    }
+    .legal-container p {
+        margin-bottom: 16px;
+        color: var(--text-secondary);
+        font-size: 15px;
+    }
+    .legal-container ul {
+        margin-left: 20px;
+        margin-bottom: 16px;
+        color: var(--text-secondary);
+    }
+    .legal-container li {
+        margin-bottom: 8px;
+    }
+    .legal-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        background: rgba(16, 185, 129, 0.15);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #10b981;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 840px; margin: 24px auto 0; padding: 0 24px; display: flex; justify-content: space-between; align-items: center;">
+    <a href="/" class="link-subtle" style="font-size: 14px;">&larr; Voltar para a Página Inicial</a>
+    <button type="button" onclick="toggleTheme()" class="theme-toggle-btn" title="Alternar entre modo claro e escuro">
+        <span class="theme-toggle-icon">🌙</span>
+        <span class="theme-toggle-label">Escuro</span>
+    </button>
+</div>
+
+<main class="legal-container">
+    <div class="legal-badge">Em conformidade com a Lei Federal nº 13.709/2018 (LGPD)</div>
+    <h1>Política de Privacidade e Proteção de Dados</h1>
+    <p><small style="color: #94a3b8;">Última atualização: Outubro de 2026 &bull; Versão 1.0</small></p>
+
+    <h2>1. Visão Geral e Compromisso</h2>
+    <p>
+        O <strong>skdnote</strong> tem como princípio fundamental o respeito absoluto à privacidade e à segurança das suas informações. Suas anotações pertencem única e exclusivamente a você. Esta Política de Privacidade explica como coletamos, utilizamos, armazenamos e protegemos seus dados pessoais de acordo com a <strong>Lei Geral de Proteção de Dados Pessoais (LGPD — Lei nº 13.709/2018)</strong> e normas internacionais de proteção de dados.
+    </p>
+
+    <h2>2. Dados Pessoais que Coletamos</h2>
+    <ul>
+        <li><strong>Dados Cadastrais:</strong> Nome completo, endereço de e-mail e preferência de moeda de faturamento (BRL, USD ou EUR).</li>
+        <li><strong>Dados de Acesso e Segurança:</strong> Senha criptografada (hash seguro PBKDF2 com salt), registros de autenticação, data/hora de login, endereço IP e identificador de navegador (User-Agent).</li>
+        <li><strong>Conteúdo das Anotações:</strong> Títulos, textos formatados, tags e anexos que você decide criar no aplicativo. O conteúdo é processado exclusivamente para prestação do serviço de anotações e backup.</li>
+        <li><strong>Dados de Pagamento:</strong> Processados de forma tokenizada e segura diretamente pela <strong>Stripe</strong>. O skdnote nunca tem acesso aos dados completos do seu cartão de crédito.</li>
+    </ul>
+
+    <h2>3. Finalidades do Tratamento (Base Legal da LGPD)</h2>
+    <p>Tratamos seus dados exclusivamente nas seguintes hipóteses autorizadas pela LGPD:</p>
+    <ul>
+        <li><strong>Execução de Contrato (Art. 7º, V):</strong> Para autenticar seu acesso, disponibilizar suas notas sincronizadas e processar assinaturas.</li>
+        <li><strong>Cumprimento de Obrigação Legal (Art. 7º, II):</strong> Manutenção de registros de conexão (IPs e timestamps) em conformidade com o Marco Civil da Internet (Lei 12.965/2014).</li>
+        <li><strong>Legítimo Interesse e Consentimento (Art. 7º, I e IX):</strong> Envio de avisos essenciais de serviço e consentimento prévio para cookies analíticos opcionais.</li>
+    </ul>
+
+    <h2>4. Direitos do Titular de Dados (Artigo 18 da LGPD)</h2>
+    <p>Você, como titular de dados pessoais, tem o direito de solicitar a qualquer momento e gratuitamente:</p>
+    <ul>
+        <li><strong>Acesso e Portabilidade:</strong> Baixar todos os seus dados e notas estruturados em formato digital (.json / .zip) diretamente na sua conta.</li>
+        <li><strong>Correção:</strong> Atualizar seus dados cadastrais incorretos ou incompletos.</li>
+        <li><strong>Eliminação e Direito ao Esquecimento:</strong> Exclusão total e irreversível da sua conta, anotações, histórico e anexos.</li>
+        <li><strong>Revogação do Consentimento:</strong> Desativar cookies não-essenciais ou comunicações a qualquer tempo.</li>
+    </ul>
+    <p>Para exercer esses direitos de forma automatizada, acesse a área <a href="/dados-pessoais/" class="link-subtle">Direitos do Titular (LGPD)</a>.</p>
+
+    <h2>5. Compartilhamento Seguro com Terceiros</h2>
+    <p>
+        O skdnote <strong>jamais vende, aluga ou monetiza</strong> seus dados pessoais com anunciantes. O compartilhamento ocorre estritamente com operadores de infraestrutura confiáveis:
+    </p>
+    <ul>
+        <li><strong>Stripe:</strong> Gateway de pagamentos para processamento seguro de cobranças multi-moeda.</li>
+        <li><strong>Infraestrutura Cloud:</strong> Servidores com criptografia de ponta a ponta e backups redundantes.</li>
+    </ul>
+
+    <h2>6. Canal do Encarregado de Proteção de Dados (DPO)</h2>
+    <p>
+        Para esclarecer dúvidas, enviar requisições ou falar com nosso Encarregado pelo Tratamento de Dados Pessoais (DPO), entre em contato pelo e-mail:
+        <br>
+        <strong style="color: #818cf8;">dpo@skdnote.com</strong>
+    </p>
+</main>
+{% endblock %}

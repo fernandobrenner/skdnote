@@ -1,0 +1,58 @@
+{% extends "administration/base_admin.html" %}
+
+{% block title %}Transações Financeiras — skdnote Admin{% endblock %}
+
+{% block admin_content %}
+<div class="page-title">Transações & Faturas Stripe</div>
+<div class="page-subtitle">Auditoria e histórico de pagamentos confirmados em Real, Dólar e Euro.</div>
+
+<div class="admin-card" style="padding: 0;">
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Data & Hora</th>
+                    <th>Cliente</th>
+                    <th>Valor</th>
+                    <th>Moeda</th>
+                    <th>Fatura / Payment Intent Stripe</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for tx in transactions %}
+                    <tr>
+                        <td>{{ tx.created_at|date:"d/m/Y H:i:s" }}</td>
+                        <td>
+                            <strong style="color: #ffffff;">{{ tx.user.email }}</strong>
+                            {% if tx.user.full_name %}<div style="font-size: 12px; color: var(--text-muted);">{{ tx.user.full_name }}</div>{% endif %}
+                        </td>
+                        <td>
+                            <strong style="font-size: 15px; color: #10b981;">
+                                {% if tx.currency == 'BRL' %}R$
+                                {% elif tx.currency == 'USD' %}$
+                                {% elif tx.currency == 'EUR' %}€
+                                {% endif %}
+                                {{ tx.amount }}
+                            </strong>
+                        </td>
+                        <td>{{ tx.currency }}</td>
+                        <td>
+                            <code style="color: #94a3b8; font-size: 12px;">{{ tx.stripe_invoice_id|default:tx.stripe_payment_intent_id|default:"checkout.session" }}</code>
+                        </td>
+                        <td>
+                            <span class="badge badge-active">{{ tx.status }}</span>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 32px;">
+                            Nenhuma transação registrada no sistema ainda.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

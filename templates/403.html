@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}403 — Acesso Restrito | skdnote{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/auth.css">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="max-width: 500px;">
+    <div class="auth-card" style="text-align: center; padding: 40px 32px;">
+        <div class="state-icon-circle" style="width: 72px; height: 72px; font-size: 32px; margin-bottom: 20px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3);">
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+        </div>
+
+        <h1 style="font-size: 26px; font-weight: 800; color: var(--text-primary); letter-spacing: -0.5px; margin-bottom: 8px;">
+            Acesso Restrito
+        </h1>
+        <h2 style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 12px;">
+            Área de Administração Exclusiva
+        </h2>
+        <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;">
+            Você não possui permissão de administrador para visualizar esta página.
+        </p>
+
+        <a href="{% url 'notes:app' %}" class="btn btn-primary btn-block">
+            Voltar para o Meu Aplicativo
+        </a>
+    </div>
+</div>
+{% endblock %}

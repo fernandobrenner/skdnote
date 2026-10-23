@@ -1,0 +1,109 @@
+/* Banner e Modal LGPD de Consentimento */
+.lgpd-banner {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    max-width: 540px;
+    margin: 0 auto;
+    background: var(--bg-surface, #ffffff);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: 16px;
+    box-shadow: var(--shadow-xl, 0 20px 40px rgba(0, 0, 0, 0.15));
+    padding: 20px 24px;
+    z-index: 99999;
+    display: none;
+    flex-direction: column;
+    gap: 14px;
+    animation: lgpdSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes lgpdSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.lgpd-banner-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.lgpd-banner-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary, #0f172a);
+}
+
+.lgpd-banner-text {
+    font-size: 13px;
+    color: var(--text-secondary, #475569);
+    line-height: 1.5;
+}
+
+.lgpd-banner-text a {
+    color: var(--primary, #4f46e5);
+    text-decoration: underline;
+}
+
+.lgpd-banner-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.lgpd-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    transition: all 0.15s ease;
+}
+
+.lgpd-btn-accept {
+    background: #4f46e5;
+    color: #ffffff;
+}
+
+.lgpd-btn-accept:hover {
+    background: #4338ca;
+}
+
+.lgpd-btn-essential {
+    background: var(--bg-hover, rgba(0, 0, 0, 0.05));
+    color: var(--text-secondary, #475569);
+    border: 1px solid var(--border-color, #e2e8f0);
+}
+
+.lgpd-btn-essential:hover {
+    background: var(--bg-active, rgba(0, 0, 0, 0.1));
+}
+
+@media (max-width: 640px) {
+    .lgpd-banner {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        padding: 16px;
+    }
+    .lgpd-banner-actions {
+        flex-direction: column;
+    }
+    .lgpd-btn {
+        width: 100%;
+        text-align: center;
+        padding: 10px 14px;
+    }
+}

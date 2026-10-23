@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}skdnote — O Aplicativo de Anotações Rápido e Focado{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/auth.css">
+<style>
+    .landing-hero {
+        max-width: 900px;
+        margin: 60px auto 40px;
+        text-align: center;
+        padding: 0 20px;
+        position: relative;
+        z-index: 1;
+    }
+    .landing-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 9999px;
+        background: rgba(99, 102, 241, 0.12);
+        border: 1px solid rgba(99, 102, 241, 0.25);
+        color: #a5b4fc;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+    .landing-title {
+        font-size: 48px;
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -1.2px;
+        color: var(--text-primary);
+        margin-bottom: 20px;
+    }
+    .landing-title span {
+        background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .landing-desc {
+        font-size: 18px;
+        color: var(--text-secondary);
+        max-width: 620px;
+        margin: 0 auto 36px;
+        line-height: 1.6;
+    }
+    .landing-cta {
+        display: flex;
+        justify-content: center;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    .features-grid {
+        max-width: 1000px;
+        margin: 60px auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
+        padding: 0 20px;
+    }
+    .feature-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 16px;
+        padding: 28px;
+        text-align: left;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .feature-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    .feature-card h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    .feature-card p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+    @media (max-width: 640px) {
+        .landing-title {
+            font-size: 32px;
+        }
+        .landing-desc {
+            font-size: 16px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<header style="width: 100%; border-bottom: 1px solid var(--border-card); padding: 18px 24px; display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; z-index: 10;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="auth-brand-logo" style="width: 38px; height: 38px; font-size: 18px; margin-bottom: 0;">S</div>
+        <span style="font-size: 20px; font-weight: 700; color: var(--text-primary);">skdnote</span>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+        <button type="button" onclick="toggleTheme()" class="theme-toggle-btn" title="Alternar entre modo claro e escuro">
+            <span class="theme-toggle-icon">🌙</span>
+            <span class="theme-toggle-label">Escuro</span>
+        </button>
+        <a href="{% url 'pricing_shortcut' %}" class="link-subtle" style="font-size: 14px; padding: 8px 12px;">Planos</a>
+        <a href="{% url 'login' %}" class="link-subtle" style="font-size: 14px; padding: 8px 12px;">Entrar</a>
+        <a href="{% url 'register' %}" class="btn btn-primary" style="height: 38px; font-size: 14px; padding: 0 16px;">Começar Grátis</a>
+    </div>
+</header>
+
+<main class="landing-hero">
+    <div class="landing-badge">
+        <span>✨ Novo Aplicativo de Anotações</span>
+    </div>
+    <h1 class="landing-title">
+        Capture ideias na velocidade do seu pensamento com <span>skdnote</span>
+    </h1>
+    <p class="landing-desc">
+        A experiência elegante e sem distrações que você ama no UpNote. Cadernos aninhados, formatação Markdown, sincronização em nuvem e planos com preço justo.
+    </p>
+    <div class="landing-cta">
+        <a href="{% url 'register' %}" class="btn btn-primary" style="padding: 0 32px;">
+            Criar Conta Grátis (Até 50 Notas)
+        </a>
+        <a href="{% url 'login' %}" class="btn btn-secondary" style="padding: 0 24px;">
+            Acessar Minha Conta
+        </a>
+    </div>
+
+    <!-- Oferta de Preço por Geolocalização -->
+    <div style="margin-top: 28px; display: inline-flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border-card); padding: 8px 18px; border-radius: 9999px; font-size: 13.5px; color: var(--text-secondary); box-shadow: var(--shadow-sm);">
+        <span>{{ geo_currency_flag }}</span>
+        <span>Preço detectado para <strong>{{ geo_country_code }}</strong>: Plano Pro ilimitado por apenas <strong>{{ geo_currency_symbol }} {% if geo_currency == 'BRL' %}9,90{% elif geo_currency == 'EUR' %}1.99{% else %}1.99{% endif %}/mês</strong></span>
+        <a href="{% url 'pricing_shortcut' %}" style="color: var(--primary); font-weight: 700; text-decoration: none; margin-left: 6px;">Ver Planos &rarr;</a>
+    </div>
+</main>
+
+<section class="features-grid">
+    <div class="feature-card">
+        <h3>⚡ Escrita Fluida & Markdown</h3>
+        <p>Editor limpo com suporte a atalhos de Markdown, tabelas, caixas de seleção e blocos de código com destaque de sintaxe.</p>
+    </div>
+    <div class="feature-card">
+        <h3>📂 Cadernos & Subcadernos</h3>
+        <p>Organize suas ideias em uma hierarquia flexível e sem limites com ícones e cores personalizados.</p>
+    </div>
+    <div class="feature-card">
+        <h3>📱 PWA & 100% Mobile</h3>
+        <p>Instale como aplicativo nativo no Android, iOS e desktop com carregamento instantâneo e suporte offline.</p>
+    </div>
+</section>
+
+<!-- Seção de Preços Resumida com Moeda Localizada -->
+<section style="max-width: 900px; margin: 20px auto 80px; padding: 0 20px; text-align: center;">
+    <h2 style="font-size: 28px; font-weight: 800; color: var(--text-primary); margin-bottom: 10px;">Preço Justo, Sem Surpresas</h2>
+    <p style="font-size: 15px; color: var(--text-secondary); margin-bottom: 30px;">
+        Valores adaptados automaticamente para a sua região com suporte a cobrança via Stripe.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px; text-align: left;">
+        <div class="feature-card" style="border-radius: 16px;">
+            <div style="font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">Starter Grátis</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Para uso pessoal diário</div>
+            <div style="font-size: 28px; font-weight: 800; color: var(--text-primary); margin-bottom: 16px;">{{ geo_currency_symbol }} 0,00</div>
+            <ul style="font-size: 13px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px; padding-left: 18px;">
+                <li>Até 50 notas ativas</li>
+                <li>Cadernos ilimitados</li>
+                <li>Modo offline PWA</li>
+            </ul>
+            <a href="{% url 'register' %}" class="btn btn-secondary btn-block">Começar Grátis</a>
+        </div>
+
+        <div class="feature-card" style="border-radius: 16px; border-color: var(--primary); box-shadow: var(--shadow-md); position: relative;">
+            <div style="position: absolute; top: -10px; right: 20px; background: var(--primary); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px;">LOCALIZADO</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">Pro Ilimitado</div>
+            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Para quem produz sem parar</div>
+            <div style="font-size: 28px; font-weight: 800; color: var(--primary); margin-bottom: 16px;">
+                {{ geo_currency_symbol }} {% if geo_currency == 'BRL' %}9,90{% elif geo_currency == 'EUR' %}1.99{% else %}1.99{% endif %}
+                <span style="font-size: 14px; font-weight: 500; color: var(--text-secondary);">/mês</span>
+            </div>
+            <ul style="font-size: 13px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px; padding-left: 18px;">
+                <li><strong>Notas 100% ilimitadas</strong></li>
+                <li>Histórico de versões de 30 dias</li>
+                <li>Opção de plano anual com desconto ou vitalício</li>
+            </ul>
+            <a href="{% url 'pricing_shortcut' %}" class="btn btn-primary btn-block">Conhecer Todos os Planos</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

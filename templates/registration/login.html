@@ -1,0 +1,65 @@
+{% extends "registration/base_auth.html" %}
+
+{% block title %}Entrar — skdnote{% endblock %}
+
+{% block auth_content %}
+<div class="auth-header">
+    <h1>Bem-vindo de volta</h1>
+    <p>Acesse suas notas com rapidez e foco</p>
+</div>
+
+{% if form.non_field_errors %}
+<div class="alert alert-error" role="alert">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <div>
+        {% for error in form.non_field_errors %}
+            <span>{{ error }}</span>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<form method="post" action="{% url 'login' %}" novalidate>
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="{{ form.username.id_for_label }}" class="form-label">
+            E-mail <span class="form-required">*</span>
+        </label>
+        {{ form.username }}
+        {% if form.username.errors %}
+            <span class="field-error">{{ form.username.errors.0 }}</span>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.password.id_for_label }}" class="form-label">
+            Senha <span class="form-required">*</span>
+        </label>
+        {{ form.password }}
+        {% if form.password.errors %}
+            <span class="field-error">{{ form.password.errors.0 }}</span>
+        {% endif %}
+    </div>
+
+    <div class="form-row-between">
+        <label class="form-check" for="{{ form.remember_me.id_for_label }}">
+            {{ form.remember_me }}
+            <span>Lembrar deste dispositivo</span>
+        </label>
+        <a href="{% url 'password_reset' %}" class="link-subtle">Esqueceu a senha?</a>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">
+        Entrar no skdnote
+    </button>
+</form>
+
+<div class="auth-footer">
+    Não tem uma conta? <a href="{% url 'register' %}">Criar conta grátis</a>
+</div>
+{% endblock %}

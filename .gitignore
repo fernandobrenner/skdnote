@@ -1,0 +1,85 @@
+# ==============================================================================
+# GITIGNORE — SKDNOTE
+# ==============================================================================
+
+# 1. Variáveis de Ambiente e Segredos
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# 2. Arquivos de Banco de Dados Local
+*.sqlite3
+db.sqlite3
+*.db
+
+# 3. Bytecode Python e Caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# 4. Ambientes Virtuais (Virtual Environments)
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# 5. Arquivos de Mídia e Arquivos Estáticos Coletados
+media/
+staticfiles/
+
+# 6. Exportações e Backups Temporários
+*.zip
+*.log
+
+# 7. IDEs, Editores e Sistema Operacional
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 8. Testes, Cobertura e Profiling
+.coverage
+.coverage.*
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+htmlcov/
+
+# 9. Diretórios de Agentes / AI IDE Locais (se houver)
+.agents/
+.gemini/

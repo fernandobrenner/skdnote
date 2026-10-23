@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Termos de Uso do Serviço — skdnote{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/auth.css">
+<style>
+    .legal-container {
+        max-width: 840px;
+        margin: 40px auto;
+        padding: 32px 24px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        color: var(--text-primary);
+        line-height: 1.7;
+    }
+    .legal-container h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    .legal-container h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-top: 28px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--border-card);
+        padding-bottom: 6px;
+    }
+    .legal-container p {
+        margin-bottom: 16px;
+        color: var(--text-secondary);
+        font-size: 15px;
+    }
+    .legal-container ul {
+        margin-left: 20px;
+        margin-bottom: 16px;
+        color: var(--text-secondary);
+    }
+    .legal-container li {
+        margin-bottom: 8px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 840px; margin: 24px auto 0; padding: 0 24px; display: flex; justify-content: space-between; align-items: center;">
+    <a href="/" class="link-subtle" style="font-size: 14px;">&larr; Voltar para a Página Inicial</a>
+    <button type="button" onclick="toggleTheme()" class="theme-toggle-btn" title="Alternar entre modo claro e escuro">
+        <span class="theme-toggle-icon">🌙</span>
+        <span class="theme-toggle-label">Escuro</span>
+    </button>
+</div>
+
+<main class="legal-container">
+    <h1>Termos de Uso do Serviço</h1>
+    <p><small style="color: #94a3b8;">Última atualização: Outubro de 2026 &bull; Versão 1.0</small></p>
+
+    <h2>1. Aceitação dos Termos</h2>
+    <p>
+        Ao criar uma conta ou utilizar o <strong>skdnote</strong>, você concorda expressamente com estes Termos de Uso e com nossa Política de Privacidade. Caso não concorde com qualquer disposição aqui estabelecida, você não deve utilizar a plataforma.
+    </p>
+
+    <h2>2. Descrição dos Planos e Limites</h2>
+    <p>O skdnote opera no modelo Freemium comercial:</p>
+    <ul>
+        <li><strong>Plano Gratuito (Starter):</strong> Acesso a todas as ferramentas de edição, cadernos, tags e sincronização em nuvem, com limite máximo de <strong>50 anotações ativas</strong> na conta. Notas movidas para a lixeira há mais de 30 dias são excluídas definitivamente.</li>
+        <li><strong>Plano Pro (Ilimitado):</strong> Desbloqueia notas ilimitadas, maior capacidade de anexos e histórico estendido de versões mediante assinatura mensal, anual ou licença vitalícia comercializada através da Stripe.</li>
+    </ul>
+
+    <h2>3. Propriedade Intelectual e Suas Anotações</h2>
+    <p>
+        <strong>Você mantém 100% da propriedade intelectual de todas as anotações, textos, imagens e arquivos que armazena no skdnote.</strong> Nós não reivindicamos quaisquer direitos sobre o seu conteúdo e não utilizamos suas anotações para treinamento de inteligência artificial ou finalidades comerciais.
+    </p>
+
+    <h2>4. Pagamentos, Assinaturas e Cancelamentos</h2>
+    <p>
+        As cobranças são processadas pela Stripe em Real (BRL), Dólar (USD) ou Euro (EUR) de acordo com sua preferência. Você pode cancelar sua assinatura a qualquer momento através do Portal de Faturamento da Stripe. Ao cancelar, o plano permanecerá ativo até o final do período vigente já pago.
+    </p>
+
+    <h2>5. Foro e Legislação Aplicável</h2>
+    <p>
+        Estes Termos são regidos pelas leis da República Federativa do Brasil, em especial o Marco Civil da Internet (Lei 12.965/2014) e a LGPD (Lei 13.709/2018).
+    </p>
+</main>
+{% endblock %}

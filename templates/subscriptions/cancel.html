@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout Cancelado — skdnote{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/auth.css">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="max-width: 480px;">
+    <div class="auth-card" style="text-align: center; padding: 40px 28px;">
+        <div class="state-icon-circle state-icon-info" style="width: 72px; height: 72px; font-size: 30px; margin-bottom: 20px;">
+            🛒
+        </div>
+
+        <h1 style="font-size: 22px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 8px;">
+            Processo de compra cancelado
+        </h1>
+        <p style="font-size: 14px; color: #94a3b8; line-height: 1.6; margin-bottom: 24px;">
+            Nenhuma cobrança foi realizada no seu cartão. Você pode continuar utilizando seu plano gratuito com até 50 notas e assinar o Pro quando desejar.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <a href="{% url 'subscriptions:pricing' %}" class="btn btn-primary btn-block">
+                Ver Outras Opções de Planos
+            </a>
+            <a href="{% url 'notes:app' %}" class="btn btn-secondary btn-block">
+                Voltar para Minhas Notas
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

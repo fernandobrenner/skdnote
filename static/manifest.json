@@ -1,0 +1,43 @@
+{
+  "name": "skdnote — Anotações Rápidas",
+  "short_name": "skdnote",
+  "description": "Aplicativo de anotações rápido, elegante e sem distrações com cadernos aninhados e suporte a Markdown.",
+  "start_url": "/app/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#4f46e5",
+  "orientation": "any",
+  "lang": "pt-BR",
+  "categories": ["productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nova Anotação",
+      "short_name": "Nova Nota",
+      "description": "Crie uma anotação instantaneamente",
+      "url": "/app/?action=new",
+      "icons": [{ "src": "/static/icons/icon-192.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Buscar Notas",
+      "short_name": "Buscar",
+      "description": "Pesquise em todas as anotações",
+      "url": "/app/?action=search",
+      "icons": [{ "src": "/static/icons/icon-192.svg", "sizes": "192x192" }]
+    }
+  ]
+}

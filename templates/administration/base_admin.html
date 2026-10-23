@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/admin.css?v=3.1">
+{% endblock %}
+
+{% block content %}
+<div class="admin-layout">
+    <!-- Barra Lateral Administrativa -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <div style="width:30px; height:30px; background:linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px;">A</div>
+                <strong style="color:var(--text-primary); font-size:16px;">skdnote</strong>
+            </div>
+            <span class="admin-badge">Admin</span>
+        </div>
+
+        <nav class="admin-nav">
+            <a href="{% url 'administration:dashboard' %}" class="admin-nav-item {% if active_menu == 'dashboard' %}active{% endif %}">
+                <span>📊</span>
+                <span>Dashboard SaaS</span>
+            </a>
+            <a href="{% url 'administration:customers' %}" class="admin-nav-item {% if active_menu == 'customers' %}active{% endif %}">
+                <span>👥</span>
+                <span>Clientes & Contas</span>
+            </a>
+            <a href="{% url 'administration:transactions' %}" class="admin-nav-item {% if active_menu == 'transactions' %}active{% endif %}">
+                <span>💳</span>
+                <span>Transações & Faturas</span>
+            </a>
+            <a href="{% url 'administration:announcements' %}" class="admin-nav-item {% if active_menu == 'announcements' %}active{% endif %}">
+                <span>📢</span>
+                <span>Avisos Globais</span>
+            </a>
+            <div style="margin: 16px 0; border-top: 1px solid var(--admin-border);"></div>
+            <a href="{% url 'notes:app' %}" class="admin-nav-item">
+                <span>📝</span>
+                <span>Ir para App de Notas</span>
+            </a>
+        </nav>
+
+        <div class="admin-sidebar-footer">
+            <div>Logado como:</div>
+            <div style="color: #cbd5e1; font-weight: 600; margin-top: 2px;">{{ user.email }}</div>
+        </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <div class="admin-main">
+        <header class="admin-topbar">
+            <div style="font-size: 13.5px; color: var(--text-secondary);">
+                Painel Executivo &bull; <strong>skdnote v1.0</strong>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <button type="button" onclick="toggleTheme()" class="theme-toggle-btn" title="Alternar entre modo claro e escuro">
+                    <span class="theme-toggle-icon">🌙</span>
+                    <span class="theme-toggle-label">Escuro</span>
+                </button>
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-secondary btn-sm">
+                        Encerrar Sessão
+                    </button>
+                </form>
+            </div>
+        </header>
+
+        <main class="admin-content">
+            {% block admin_content %}{% endblock %}
+        </main>
+    </div>
+</div>
+{% endblock %}

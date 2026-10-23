@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/auth.css">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <!-- Alternador de Tema Claro / Escuro -->
+    <div style="position: absolute; top: 16px; right: 20px; z-index: 10;">
+        <button type="button" onclick="toggleTheme()" class="theme-toggle-btn" title="Alternar entre modo claro e escuro">
+            <span class="theme-toggle-icon">🌙</span>
+            <span class="theme-toggle-label">Escuro</span>
+        </button>
+    </div>
+
+    <!-- Logotipo / Marca -->
+    <a href="/" class="auth-brand" aria-label="skdnote Início">
+        <div class="auth-brand-logo">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+        </div>
+        <span class="auth-brand-name">skdnote</span>
+        <span class="auth-brand-tagline">Anotações limpas, velozes e seguras</span>
+    </a>
+
+    <!-- Cartão Central de Conteúdo -->
+    <div class="auth-card">
+        {% block auth_content %}{% endblock %}
+    </div>
+
+    <!-- Links de Rodapé e LGPD -->
+    <div class="auth-legal-footer">
+        <span>&copy; skdnote. Todos os direitos reservados.</span>
+        <div>
+            <a href="/politica-de-privacidade/">Privacidade & LGPD</a> &bull;
+            <a href="/termos-de-uso/">Termos de Uso</a> &bull;
+            <a href="/status/">Status</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

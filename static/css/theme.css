@@ -1,0 +1,436 @@
+/* ==========================================================================
+   skdnote Design System & Theme Engine (Claro Padrão / Escuro Opcional)
+   ========================================================================== */
+
+/* 1. TEMA CLARO (PADRÃO SOLICITADO PELO USUÁRIO) */
+:root,
+[data-theme="light"] {
+    --color-scheme: light;
+    
+    /* Fundos */
+    --bg-page: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-elevated: #ffffff;
+    --bg-hover: rgba(0, 0, 0, 0.04);
+    --bg-active: rgba(79, 70, 229, 0.08);
+
+    /* Textos */
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-faint: #94a3b8;
+
+    /* Bordas */
+    --border-color: #e2e8f0;
+    --border-subtle: #f1f5f9;
+    --border-strong: #cbd5e1;
+
+    /* Cores de Marca / Ação */
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --primary-light: #6366f1;
+    --primary-subtle: rgba(79, 70, 229, 0.08);
+    --primary-glow: rgba(79, 70, 229, 0.15);
+
+    /* Feedback */
+    --success: #10b981;
+    --success-bg: rgba(16, 185, 129, 0.1);
+    --warning: #f59e0b;
+    --warning-bg: rgba(245, 158, 11, 0.1);
+    --danger: #ef4444;
+    --danger-bg: rgba(239, 68, 68, 0.1);
+
+    /* Inputs e Controles */
+    --input-bg: #ffffff;
+    --input-border: #cbd5e1;
+    --input-focus-border: #4f46e5;
+
+    /* Sombras */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+/* 2. TEMA ESCURO (OPÇÃO ALTERNÁVEL) */
+[data-theme="dark"] {
+    --color-scheme: dark;
+
+    /* Fundos */
+    --bg-page: #0b0f19;
+    --bg-surface: #111827;
+    --bg-elevated: #1e293b;
+    --bg-hover: rgba(255, 255, 255, 0.05);
+    --bg-active: rgba(99, 102, 241, 0.15);
+
+    /* Textos */
+    --text-primary: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-faint: #64748b;
+
+    /* Bordas */
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.04);
+    --border-strong: rgba(255, 255, 255, 0.16);
+
+    /* Cores de Marca / Ação */
+    --primary: #4f46e5;
+    --primary-hover: #4338ca;
+    --primary-light: #818cf8;
+    --primary-subtle: rgba(99, 102, 241, 0.14);
+    --primary-glow: rgba(99, 102, 241, 0.35);
+
+    /* Feedback */
+    --success: #10b981;
+    --success-bg: rgba(16, 185, 129, 0.15);
+    --warning: #f59e0b;
+    --warning-bg: rgba(245, 158, 11, 0.15);
+    --danger: #ef4444;
+    --danger-bg: rgba(239, 68, 68, 0.15);
+
+    /* Inputs e Controles */
+    --input-bg: rgba(15, 23, 42, 0.7);
+    --input-border: rgba(255, 255, 255, 0.14);
+    --input-focus-border: #818cf8;
+
+    /* Sombras */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.6);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.7);
+}
+
+/* ==========================================================================
+   COMPONENTE DO BOTÃO DE ALTERNÂNCIA DE TEMA (CLARO / ESCURO)
+   ========================================================================== */
+.theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-hover);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 5px 12px;
+    border-radius: 9999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    user-select: none;
+    line-height: 1;
+}
+
+.theme-toggle-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-active);
+    border-color: var(--primary);
+    transform: translateY(-1px);
+}
+
+.theme-toggle-icon {
+    font-size: 14px;
+    display: inline-block;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.theme-toggle-btn:hover .theme-toggle-icon {
+    transform: rotate(20deg) scale(1.1);
+}
+
+/* ==========================================================================
+   SISTEMA GLOBAL DE BOTÕES MODERNOS (skdnote Design System)
+   ========================================================================== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    font-family: inherit;
+    text-decoration: none;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    box-sizing: border-box;
+    white-space: nowrap;
+    user-select: none;
+    outline: none;
+    line-height: 1;
+}
+
+.btn:disabled,
+.btn[disabled] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* 1. Botão Primário (Vibrant Indigo Gradient) */
+.btn-primary {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(79, 70, 229, 0.2);
+}
+
+/* 2. Botão Secundário (Soft Border & Neutral) */
+.btn-secondary {
+    background: var(--bg-surface);
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-strong);
+    color: var(--text-primary) !important;
+    transform: translateY(-1px);
+}
+
+.btn-secondary:active {
+    transform: translateY(0);
+}
+
+/* 3. Botão de Perigo / Destrutivo (Danger) */
+.btn-danger {
+    background: #ef4444;
+    color: #ffffff !important;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.25);
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+.btn-danger:active {
+    transform: translateY(0);
+}
+
+/* 4. Botão de Sucesso (Success) */
+.btn-success {
+    background: #10b981;
+    color: #ffffff !important;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+}
+
+.btn-success:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.btn-success:active {
+    transform: translateY(0);
+}
+
+/* 5. Variações de Tamanho e Layout */
+.btn-sm {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+    border-radius: 6px;
+}
+
+.btn-lg {
+    height: 44px;
+    padding: 0 22px;
+    font-size: 15px;
+    border-radius: 10px;
+}
+
+.btn-block {
+    display: flex;
+    width: 100%;
+}
+
+/* 6. Controles de Formulário Globais */
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-label {
+    display: block;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.form-input, .form-select {
+    width: 100%;
+    height: 38px;
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    padding: 0 12px;
+    color: var(--text-primary);
+    font-size: 13.5px;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: all 0.15s ease;
+}
+
+.form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+/* 7. Variantes Especiais de Botões */
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+}
+
+.btn-ghost:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.btn-danger-soft {
+    background: rgba(239, 68, 68, 0.12);
+    color: #ef4444 !important;
+    border: 1px solid rgba(239, 68, 68, 0.28);
+}
+
+.btn-danger-soft:hover {
+    background: #ef4444;
+    color: #ffffff !important;
+    border-color: #ef4444;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+.btn-success-soft {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981 !important;
+    border: 1px solid rgba(16, 185, 129, 0.28);
+}
+
+.btn-success-soft:hover {
+    background: #10b981;
+    color: #ffffff !important;
+    border-color: #10b981;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+/* Botão de Adicionar Seção no Sidebar (+ Caderno / + Tag) */
+.btn-add-section {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--primary) !important;
+    border: 1px solid rgba(99, 102, 241, 0.22);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    line-height: 1;
+    transition: all 0.15s ease;
+    padding: 0;
+}
+
+.btn-add-section:hover {
+    background: var(--primary);
+    color: #ffffff !important;
+    transform: scale(1.08);
+    box-shadow: 0 2px 8px var(--primary-glow);
+}
+
+/* Botão de Fechar Modal Estilizado */
+.modal-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    line-height: 1;
+    padding: 0;
+}
+
+.modal-close-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+/* Botão de Ação no Rodapé do Sidebar */
+.btn-sidebar-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-decoration: none;
+}
+
+.btn-sidebar-icon:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+/* Botão Gatilho de Adicionar Etiqueta no Editor */
+.btn-add-tag-pill {
+    background: var(--bg-surface);
+    border: 1px dashed var(--border-color);
+    color: var(--text-secondary);
+    border-radius: 6px;
+    padding: 2px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 600;
+    height: 24px;
+    transition: all 0.15s ease;
+}
+
+.btn-add-tag-pill:hover {
+    background: var(--bg-hover);
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-1px);
+}
+

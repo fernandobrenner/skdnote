@@ -1,0 +1,96 @@
+{% extends "administration/base_admin.html" %}
+
+{% block title %}Avisos Globais — skdnote Admin{% endblock %}
+
+{% block admin_content %}
+<div class="page-title">Avisos e Notificações Globais</div>
+<div class="page-subtitle">Transmita avisos de manutenção, atualizações ou comunicados visíveis para todos os clientes no aplicativo.</div>
+
+<!-- Formulário de Criação de Aviso -->
+<div class="admin-card">
+    <div class="admin-card-title" style="margin-bottom: 14px;">Criar Novo Comunicado Global</div>
+    <form method="post" action="{% url 'administration:announcement_create' %}">
+        {% csrf_token %}
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 14px;">
+            <div>
+                <label class="form-label">Título do Aviso</label>
+                <input type="text" name="title" class="form-input" placeholder="Ex: Manutenção programada para o fim de semana" required>
+            </div>
+            <div>
+                <label class="form-label">Nível de Importância</label>
+                <select name="level" class="form-select">
+                    <option value="INFO">Informativo (Azul)</option>
+                    <option value="WARNING">Aviso / Alerta (Amarelo)</option>
+                    <option value="CRITICAL">Crítico / Urgente (Vermelho)</option>
+                </select>
+            </div>
+        </div>
+        <div style="margin-bottom: 16px;">
+            <label class="form-label">Mensagem Completa</label>
+            <textarea name="message" class="form-input" style="height: 80px; padding: 10px; resize: vertical;" placeholder="Detalhes do aviso..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="height: 38px; font-size: 13px;">
+            Publicar Aviso Global
+        </button>
+    </form>
+</div>
+
+<!-- Lista de Avisos Criados -->
+<div class="admin-card" style="padding: 0;">
+    <div class="table-responsive">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Título</th>
+                    <th>Mensagem</th>
+                    <th>Nível</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Ação</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in announcements %}
+                    <tr>
+                        <td>{{ item.created_at|date:"d/m/Y H:i" }}</td>
+                        <td><strong style="color: #ffffff;">{{ item.title }}</strong></td>
+                        <td style="max-width: 320px; font-size: 13px; color: var(--text-muted);">{{ item.message }}</td>
+                        <td>
+                            {% if item.level == 'INFO' %}
+                                <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">Info</span>
+                            {% elif item.level == 'WARNING' %}
+                                <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #f59e0b;">Aviso</span>
+                            {% else %}
+                                <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444;">Crítico</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.is_active %}
+                                <span class="badge badge-active">Ativo</span>
+                            {% else %}
+                                <span class="badge badge-suspended">Inativo</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right;">
+                            <form action="{% url 'administration:announcement_toggle' announcement_id=item.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                {% if item.is_active %}
+                                    <button type="submit" class="btn btn-secondary btn-sm">Desativar</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-success-soft btn-sm">Ativar</button>
+                                {% endif %}
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">
+                            Nenhum comunicado criado até o momento.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

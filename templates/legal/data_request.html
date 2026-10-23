@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Seus Direitos e Dados Pessoais (LGPD) — skdnote{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/auth.css">
+<style>
+    .data-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 16px;
+        padding: 28px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow-sm);
+    }
+    .data-card h3 {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    .data-card p {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 18px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="max-width: 640px; margin: 40px auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <a href="{% url 'notes:app' %}" class="link-subtle" style="font-size: 14px;">&larr; Voltar para Minhas Notas</a>
+        <button type="button" onclick="toggleTheme()" class="theme-toggle-btn" title="Alternar entre modo claro e escuro">
+            <span class="theme-toggle-icon">🌙</span>
+            <span class="theme-toggle-label">Escuro</span>
+        </button>
+    </div>
+
+    <div class="auth-header" style="text-align: left; margin-bottom: 28px;">
+        <div class="legal-badge" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600; display: inline-block; margin-bottom: 10px;">
+            Artigo 18 da Lei Federal nº 13.709/2018 (LGPD)
+        </div>
+        <h1>Portal de Privacidade do Titular</h1>
+        <p>Você tem o controle total sobre seus dados e anotações armazenadas no skdnote.</p>
+    </div>
+
+    <!-- Opção 1: Portabilidade de Dados -->
+    <div class="data-card">
+        <h3>📦 1. Exportar e Baixar Meus Dados (Portabilidade)</h3>
+        <p>
+            Gere uma cópia completa de todos os seus dados cadastrais, histórico de consentimentos LGPD e lista de anotações em formato estruturado JSON.
+        </p>
+        <a href="/accounts/lgpd/export-data/" class="btn btn-secondary" style="font-size: 14px; height: 42px;">
+            Baixar Arquivo de Dados (.JSON)
+        </a>
+    </div>
+
+    <!-- Opção 2: Direito à Eliminação / Esquecimento -->
+    <div class="data-card" style="border-color: rgba(239, 68, 68, 0.25);">
+        <h3 style="color: #f87171;">⚠️ 2. Excluir Minha Conta e Anotações (Esquecimento)</h3>
+        <p>
+            Esta ação é <strong>irreversível</strong>. Todas as suas anotações, cadernos, versões de histórico, anexos e dados cadastrais serão eliminados definitivamente de nossos servidores.
+        </p>
+        <form method="post" action="/accounts/lgpd/delete-account/" onsubmit="return confirm('ATENÇÃO: Deseja realmente excluir permanentemente sua conta e todas as suas anotações? Esta ação não pode ser desfeita.');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger btn-lg">
+                Excluir Minha Conta Permanentemente
+            </button>
+        </form>
+    </div>
+
+    <!-- Informações do DPO -->
+    <div class="data-card">
+        <h3>✉️ Falar com o Encarregado de Dados (DPO)</h3>
+        <p>
+            Caso queira fazer uma requisição formal ou tirar dúvidas sobre o tratamento de seus dados pessoais, envie um e-mail para <strong style="color: #818cf8;">dpo@skdnote.com</strong>.
+        </p>
+    </div>
+</div>
+{% endblock %}

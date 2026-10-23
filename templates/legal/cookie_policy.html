@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block title %}Política de Cookies — skdnote{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/auth.css">
+<style>
+    .legal-container {
+        max-width: 840px;
+        margin: 40px auto;
+        padding: 32px 24px;
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 16px;
+        box-shadow: var(--shadow-sm);
+        color: var(--text-primary);
+        line-height: 1.7;
+    }
+    .legal-container h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+    }
+    .legal-container h2 {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-top: 28px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--border-card);
+        padding-bottom: 6px;
+    }
+    .cookie-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+        font-size: 14px;
+    }
+    .cookie-table th, .cookie-table td {
+        padding: 12px;
+        border: 1px solid var(--border-card);
+        text-align: left;
+    }
+    .cookie-table th {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 840px; margin: 24px auto 0; padding: 0 24px; display: flex; justify-content: space-between; align-items: center;">
+    <a href="/" class="link-subtle" style="font-size: 14px;">&larr; Voltar para a Página Inicial</a>
+    <button type="button" onclick="toggleTheme()" class="theme-toggle-btn" title="Alternar entre modo claro e escuro">
+        <span class="theme-toggle-icon">🌙</span>
+        <span class="theme-toggle-label">Escuro</span>
+    </button>
+</div>
+
+<main class="legal-container">
+    <h1>Política de Cookies</h1>
+    <p><small style="color: #94a3b8;">Última atualização: Outubro de 2026 &bull; Versão 1.0</small></p>
+
+    <h2>1. O que são Cookies?</h2>
+    <p>
+        Cookies são pequenos arquivos de texto armazenados no seu navegador para manter sua sessão conectada com segurança, salvar suas preferências visuais e entender de forma anônima como a plataforma é utilizada.
+    </p>
+
+    <h2>2. Categorias de Cookies Utilizados</h2>
+    <table class="cookie-table">
+        <thead>
+            <tr>
+                <th>Categoria</th>
+                <th>Finalidade</th>
+                <th>Obrigatório?</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Essenciais</strong></td>
+                <td>Autenticação do usuário (sessionid), segurança contra ataques CSRF (csrftoken) e preferências essenciais de login.</td>
+                <td>Sim (Não desativáveis)</td>
+            </tr>
+            <tr>
+                <td><strong>Preferências</strong></td>
+                <td>Memorização do tema visual (claro/escuro), tipo de fonte do editor e moeda preferida.</td>
+                <td>Sim</td>
+            </tr>
+            <tr>
+                <td><strong>Analíticos</strong></td>
+                <td>Métricas de desempenho e diagnóstico técnico agregado sem identificação individual direta.</td>
+                <td>Opcional</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>3. Como Gerenciar seus Cookies</h2>
+    <p>
+        Você pode redefinir suas preferências a qualquer momento limpando os cookies do seu navegador ou através do nosso banner de consentimento no rodapé.
+    </p>
+</main>
+{% endblock %}

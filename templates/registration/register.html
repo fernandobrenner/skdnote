@@ -1,0 +1,102 @@
+{% extends "registration/base_auth.html" %}
+
+{% block title %}Criar Conta Gratuita — skdnote{% endblock %}
+
+{% block auth_content %}
+<div class="auth-header">
+    <h1>Criar sua conta</h1>
+    <p>Comece grátis com até 50 notas e todos os recursos</p>
+</div>
+
+{% if form.non_field_errors %}
+<div class="alert alert-error" role="alert">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+    </svg>
+    <div>
+        {% for error in form.non_field_errors %}
+            <span>{{ error }}</span>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<form method="post" action="{% url 'register' %}" novalidate>
+    {% csrf_token %}
+    
+    <div class="form-group">
+        <label for="{{ form.full_name.id_for_label }}" class="form-label">
+            Nome Completo <span class="form-required">*</span>
+        </label>
+        {{ form.full_name }}
+        {% if form.full_name.errors %}
+            <span class="field-error">{{ form.full_name.errors.0 }}</span>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.email.id_for_label }}" class="form-label">
+            E-mail <span class="form-required">*</span>
+        </label>
+        {{ form.email }}
+        {% if form.email.errors %}
+            <span class="field-error">{{ form.email.errors.0 }}</span>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.preferred_currency.id_for_label }}" class="form-label">
+            Moeda Preferida para Planos
+        </label>
+        {{ form.preferred_currency }}
+        <p class="form-help">Você poderá alterar sua moeda a qualquer momento.</p>
+        {% if form.preferred_currency.errors %}
+            <span class="field-error">{{ form.preferred_currency.errors.0 }}</span>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.password.id_for_label }}" class="form-label">
+            Senha <span class="form-required">*</span>
+        </label>
+        {{ form.password }}
+        {% if form.password.errors %}
+            <span class="field-error">{{ form.password.errors.0 }}</span>
+        {% else %}
+            <p class="form-help">Mínimo de 8 caracteres.</p>
+        {% endif %}
+    </div>
+
+    <div class="form-group">
+        <label for="{{ form.password_confirm.id_for_label }}" class="form-label">
+            Confirmar Senha <span class="form-required">*</span>
+        </label>
+        {{ form.password_confirm }}
+        {% if form.password_confirm.errors %}
+            <span class="field-error">{{ form.password_confirm.errors.0 }}</span>
+        {% endif %}
+    </div>
+
+    <div class="form-group" style="margin-top: 14px; margin-bottom: 22px;">
+        <label class="form-check" for="{{ form.accept_terms.id_for_label }}">
+            {{ form.accept_terms }}
+            <span style="font-size: 13px; line-height: 1.4;">
+                Li e aceito os <a href="/termos-de-uso/" target="_blank" class="link-subtle">Termos de Uso</a> e a <a href="/politica-de-privacidade/" target="_blank" class="link-subtle">Política de Privacidade (LGPD)</a>.
+            </span>
+        </label>
+        {% if form.accept_terms.errors %}
+            <span class="field-error">{{ form.accept_terms.errors.0 }}</span>
+        {% endif %}
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">
+        Criar Minha Conta Gratuita
+    </button>
+</form>
+
+<div class="auth-footer">
+    Já possui uma conta? <a href="{% url 'login' %}">Fazer login</a>
+</div>
+{% endblock %}

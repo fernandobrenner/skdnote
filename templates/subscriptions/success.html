@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Plano Pro Ativado com Sucesso! — skdnote{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/auth.css">
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="max-width: 500px;">
+    <div class="auth-card" style="text-align: center; padding: 40px 32px;">
+        <div class="state-icon-circle state-icon-success" style="width: 72px; height: 72px; font-size: 32px; margin-bottom: 20px;">
+            🎉
+        </div>
+
+        <h1 style="font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px; margin-bottom: 8px;">
+            Parabéns! Você agora é Pro
+        </h1>
+        <p style="font-size: 14.5px; color: #94a3b8; line-height: 1.6; margin-bottom: 24px;">
+            Sua assinatura do <strong>skdnote Pro</strong> foi ativada. O limite de 50 notas foi removido da sua conta e agora você tem notas, cadernos e anexos ilimitados.
+        </p>
+
+        <a href="{% url 'notes:app' %}" class="btn btn-primary btn-block">
+            Começar a Criar Notas Ilimitadas &rarr;
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    
+    <title>{% block title %}skdnote — O Aplicativo de Anotações Rápido e Focado{% endblock %}</title>
+    
+    <!-- Meta tags SEO essenciais -->
+    <meta name="description" content="{% block meta_description %}skdnote é um aplicativo de anotações rápido, elegante e sem distrações similar ao UpNote. Cadernos aninhados, suporte completo a Markdown, sincronização segura e planos com preço justo.{% endblock %}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+
+    <!-- Open Graph / Redes Sociais -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:title" content="{% block og_title %}skdnote — O Aplicativo de Anotações Rápido e Focado{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Anotações rápidas com suporte a Markdown, organização em cadernos e sincronização segura estilo UpNote.{% endblock %}">
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}/static/icons/icon-512.svg">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}skdnote — Anotações Rápidas e Focadas{% endblock %}">
+    <meta name="twitter:description" content="Organize suas ideias na velocidade do pensamento com cadernos hierárquicos e Markdown.">
+    <meta name="twitter:image" content="{{ request.scheme }}://{{ request.get_host }}/static/icons/icon-512.svg">
+
+    <!-- PWA & Mobile Web App Config -->
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="skdnote">
+    <link rel="manifest" href="/static/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.svg">
+    <link rel="icon" type="image/svg+xml" href="/static/icons/icon-192.svg">
+    
+    <!-- Tipografia moderna: Plus Jakarta Sans / Inter / JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Prevenção de FOUC e Seleção de Tema (Claro Padrão / Escuro Opcional) -->
+    <script>
+        (function() {
+            var theme = localStorage.getItem('skdnote-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
+    <link rel="stylesheet" href="/static/css/theme.css?v=3.1">
+    
+    <!-- Estilos essenciais e LGPD -->
+    <link rel="stylesheet" href="/static/css/lgpd.css">
+    {% block extra_css %}{% endblock %}
+
+    <!-- Dados Estruturados Schema.org (JSON-LD) para SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "skdnote",
+      "applicationCategory": "ProductivityApplication",
+      "operatingSystem": "All (Web, PWA, Android, iOS, Windows, Mac, Linux)",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "BRL"
+      },
+      "description": "Aplicativo de anotações rápido e elegante similar ao UpNote com cadernos aninhados, suporte a Markdown e autosave."
+    }
+    </script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    {% block content %}{% endblock %}
+
+    <!-- Banner de Instalação do PWA (Exibido sob demanda) -->
+    <div id="pwa-install-banner" style="display: none; position: fixed; top: 16px; left: 16px; right: 16px; max-width: 440px; margin: 0 auto; background: #1e293b; border: 1px solid rgba(99, 102, 241, 0.4); border-radius: 12px; padding: 12px 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); z-index: 99998; align-items: center; justify-content: space-between; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <img src="/static/icons/icon-192.svg" alt="skdnote" width="36" height="36" style="border-radius: 8px;">
+            <div>
+                <strong style="color: #ffffff; font-size: 14px; display: block;">Instalar o skdnote</strong>
+                <span style="color: #94a3b8; font-size: 12px;">Acesse direto da tela inicial</span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <button onclick="triggerPWAInstall()" class="btn btn-primary btn-sm">Instalar</button>
+            <button onclick="dismissPWAInstall()" class="modal-close-btn" title="Fechar" aria-label="Fechar">&times;</button>
+        </div>
+    </div>
+
+    <!-- Banner de Consentimento de Cookies da LGPD -->
+    <div id="lgpd-consent-banner" class="lgpd-banner">
+        <div class="lgpd-banner-header">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span class="lgpd-banner-title">Privacidade e Uso de Dados (LGPD)</span>
+        </div>
+        <div class="lgpd-banner-text">
+            Utilizamos cookies essenciais para manter sua sessão segura e, com sua autorização, métricas anônimas para melhorar o skdnote. Saiba mais em nossa <a href="/politica-de-privacidade/">Política de Privacidade</a> e <a href="/cookies/">Política de Cookies</a>.
+        </div>
+        <div class="lgpd-banner-actions">
+            <button id="lgpd-btn-essential" class="lgpd-btn lgpd-btn-essential">Apenas Essenciais</button>
+            <button id="lgpd-btn-accept" class="lgpd-btn lgpd-btn-accept">Aceitar Todos</button>
+        </div>
+    </div>
+    
+    <!-- Scripts PWA, LGPD e Alternador de Tema -->
+    <script src="/static/js/theme.js"></script>
+    <script src="/static/js/pwa-register.js" defer></script>
+    <script src="/static/js/lgpd-banner.js" defer></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

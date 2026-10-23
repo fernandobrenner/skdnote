@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block title %}Planos e Preços Acessíveis — skdnote{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="/static/css/auth.css">
+<style>
+    .pricing-container {
+        max-width: 1100px;
+        margin: 40px auto 60px;
+        padding: 0 20px;
+        text-align: center;
+    }
+    .pricing-header h1 {
+        font-size: 38px;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.8px;
+        margin-bottom: 12px;
+    }
+    .pricing-header p {
+        font-size: 16px;
+        color: var(--text-secondary);
+        max-width: 600px;
+        margin: 0 auto 28px;
+    }
+    /* Seletor de Moeda */
+    .currency-selector {
+        display: inline-flex;
+        background: var(--bg-hover);
+        border: 1px solid var(--border-card);
+        border-radius: 12px;
+        padding: 4px;
+        margin-bottom: 40px;
+        gap: 4px;
+    }
+    .currency-btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.15s ease;
+    }
+    .currency-btn:hover {
+        color: var(--text-primary);
+    }
+    .currency-btn.active {
+        background: var(--primary);
+        color: #ffffff;
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.4);
+    }
+    /* Grade de Planos */
+    .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 20px;
+        margin-bottom: 60px;
+    }
+    .plan-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border-card);
+        border-radius: 18px;
+        padding: 30px 24px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: left;
+        position: relative;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .plan-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+        border-color: var(--primary);
+    }
+    .plan-card.featured {
+        background: var(--bg-card);
+        border-color: var(--primary);
+        box-shadow: var(--shadow-lg);
+    }
+    .featured-badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        padding: 4px 12px;
+        border-radius: 20px;
+        letter-spacing: 0.5px;
+    }
+    .plan-name {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 6px;
+    }
+    .plan-price-val {
+        font-size: 32px;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin: 16px 0 6px;
+    }
+    .plan-price-period {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+    .plan-features {
+        margin: 24px 0;
+        padding: 0;
+        list-style: none;
+        font-size: 13.5px;
+        color: var(--text-secondary);
+        line-height: 1.8;
+    }
+    .plan-features li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .check-icon {
+        color: #10b981;
+        font-size: 14px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<header style="max-width: 1100px; margin: 20px auto 0; padding: 0 20px; display: flex; justify-content: space-between; align-items: center;">
+    <a href="/" class="brand-wrapper" style="text-decoration: none; display: flex; align-items: center; gap: 8px;">
+        <div class="brand-icon" style="width: 32px; height: 32px; font-size: 16px;">S</div>
+        <strong style="color: var(--text-primary); font-size: 18px;">skdnote</strong>
+    </a>
+    <div style="display: flex; align-items: center;">
+        <button type="button" onclick="toggleTheme()" class="theme-toggle-btn" style="margin-right: 14px;" title="Alternar entre modo claro e escuro">
+            <span class="theme-toggle-icon">🌙</span>
+            <span class="theme-toggle-label">Escuro</span>
+        </button>
+        {% if user.is_authenticated %}
+            <a href="{% url 'notes:app' %}" class="btn btn-secondary" style="height: 36px; font-size: 13px; padding: 0 16px;">Ir para o App</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="link-subtle" style="font-size: 14px; margin-right: 14px;">Entrar</a>
+            <a href="{% url 'register' %}" class="btn btn-primary" style="height: 36px; font-size: 13px; padding: 0 16px;">Cadastrar Grátis</a>
+        {% endif %}
+    </div>
+</header>
+
+<main class="pricing-container">
+    <div class="pricing-header">
+        <h1>Preço Justo e Acessível</h1>
+        <p>Comece gratuitamente com até 50 notas. Desbloqueie anotações ilimitadas por um valor extremamente amigável.</p>
+        <div style="display:inline-flex; align-items:center; gap:8px; background:var(--primary-subtle); border:1px solid var(--border-card); border-radius:9999px; padding:6px 16px; font-size:12.5px; font-weight:600; color:var(--primary); margin-bottom:16px;">
+            <span>{{ currency_flag }} Preço detectado automaticamente para <strong>{{ detected_country }}</strong> ({{ selected_currency }})</span>
+        </div>
+    </div>
+
+    <!-- Seletor de Moeda (BRL, USD, EUR) -->
+    <div class="currency-selector">
+        <a href="?currency=BRL" class="currency-btn {% if selected_currency == 'BRL' %}active{% endif %}">
+            🇧🇷 R$ Real (BRL)
+        </a>
+        <a href="?currency=USD" class="currency-btn {% if selected_currency == 'USD' %}active{% endif %}">
+            🇺🇸 $ Dólar (USD)
+        </a>
+        <a href="?currency=EUR" class="currency-btn {% if selected_currency == 'EUR' %}active{% endif %}">
+            🇪🇺 € Euro (EUR)
+        </a>
+    </div>
+
+    <!-- Grade de Planos -->
+    <div class="pricing-grid">
+        <!-- 1. Plano Gratuito -->
+        <div class="plan-card">
+            <div>
+                <div class="plan-name">Starter Gratuito</div>
+                <div style="font-size: 13px; color: #94a3b8;">Para quem está começando</div>
+                <div class="plan-price-val">{{ currency_symbol }} 0,00</div>
+                <div class="plan-price-period">grátis para sempre</div>
+                <ul class="plan-features">
+                    <li><span class="check-icon">✓</span> <strong>Até 50 notas ativas</strong></li>
+                    <li><span class="check-icon">✓</span> Todos os recursos de edição</li>
+                    <li><span class="check-icon">✓</span> Cadernos e subcadernos</li>
+                    <li><span class="check-icon">✓</span> PWA com suporte offline</li>
+                    <li><span class="check-icon">✓</span> Sincronização em nuvem</li>
+                </ul>
+            </div>
+            {% if user.is_authenticated and not user.subscription.is_pro %}
+                <span class="btn btn-secondary btn-block" style="text-align: center; cursor: default; opacity: 0.8;">Plano Atual</span>
+            {% else %}
+                <a href="{% url 'register' %}" class="btn btn-secondary btn-block">Começar Grátis</a>
+            {% endif %}
+        </div>
+
+        <!-- 2. Plano Pro Mensal -->
+        <div class="plan-card">
+            <div>
+                <div class="plan-name">Pro Mensal</div>
+                <div style="font-size: 13px; color: #94a3b8;">Flexibilidade total</div>
+                <div class="plan-price-val">{{ currency_symbol }} {{ prices.MONTHLY.amount }}</div>
+                <div class="plan-price-period">cobrado mensalmente</div>
+                <ul class="plan-features">
+                    <li><span class="check-icon">✓</span> <strong>Notas e cadernos ilimitados</strong></li>
+                    <li><span class="check-icon">✓</span> Anexos de até 25MB</li>
+                    <li><span class="check-icon">✓</span> Histórico de versões (30 dias)</li>
+                    <li><span class="check-icon">✓</span> Cancelamento a qualquer hora</li>
+                </ul>
+            </div>
+            <a href="{% url 'subscriptions:checkout' %}?price_id={{ prices.MONTHLY.id }}" class="btn btn-primary btn-block">
+                Assinar Mensal
+            </a>
+        </div>
+
+        <!-- 3. Plano Pro Anual (Destaque) -->
+        <div class="plan-card featured">
+            <div class="featured-badge">Mais Popular &bull; Economize 33%</div>
+            <div>
+                <div class="plan-name">Pro Anual</div>
+                <div style="font-size: 13px; color: #94a3b8;">Melhor custo-benefício</div>
+                <div class="plan-price-val">{{ currency_symbol }} {{ prices.YEARLY.amount }}</div>
+                <div class="plan-price-period">cobrado anualmente</div>
+                <ul class="plan-features">
+                    <li><span class="check-icon">✓</span> <strong>Tudo do Pro ilimitado</strong></li>
+                    <li><span class="check-icon">✓</span> Economia equivalente a 4 meses grátis</li>
+                    <li><span class="check-icon">✓</span> Suporte prioritário</li>
+                    <li><span class="check-icon">✓</span> Acesso antecipado a novas funções</li>
+                </ul>
+            </div>
+            <a href="{% url 'subscriptions:checkout' %}?price_id={{ prices.YEARLY.id }}" class="btn btn-primary btn-block">
+                Assinar Anual com Desconto
+            </a>
+        </div>
+
+        <!-- 4. Licença Vitalícia (Lifetime Deal) -->
+        <div class="plan-card">
+            <div>
+                <div class="plan-name">Pro Vitalício</div>
+                <div style="font-size: 13px; color: #94a3b8;">Pagamento único</div>
+                <div class="plan-price-val">{{ currency_symbol }} {{ prices.LIFETIME.amount }}</div>
+                <div class="plan-price-period">sem mensalidades para sempre</div>
+                <ul class="plan-features">
+                    <li><span class="check-icon">✓</span> <strong>Acesso vitalício ao Pro</strong></li>
+                    <li><span class="check-icon">✓</span> Pague uma vez, use para sempre</li>
+                    <li><span class="check-icon">✓</span> Todas as futuras atualizações</li>
+                    <li><span class="check-icon">✓</span> Badge especial de Membro Fundador</li>
+                </ul>
+            </div>
+            <a href="{% url 'subscriptions:checkout' %}?price_id={{ prices.LIFETIME.id }}" class="btn btn-primary btn-block">
+                Garantir Licença Vitalícia
+            </a>
+        </div>
+    </div>
+</main>
+{% endblock %}

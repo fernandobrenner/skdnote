@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /politica-de-privacidade/
+Allow: /termos-de-uso/
+Allow: /cookies/
+Allow: /login/
+Allow: /register/
+Disallow: /app/
+Disallow: /manage/
+Disallow: /api/
+Disallow: /accounts/
+Disallow: /subscriptions/checkout/
+Disallow: /media/
+
+Sitemap: https://skdnote.com/sitemap.xml
